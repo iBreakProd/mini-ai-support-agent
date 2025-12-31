@@ -8,5 +8,14 @@ export const errorMiddleware = (
 ) => {
   const status = err.status ?? 500;
   const message = err.message ?? "Internal server error";
+  const retryAfterSeconds = err.retryAfterSeconds;
+
+  console.error(err);
+
+  if (retryAfterSeconds) {
+    res.status(status).json({ message, success: false, retryAfterSeconds });
+    return;
+  }
   res.status(status).json({ message, success: false });
+  return;
 };

@@ -1,0 +1,54 @@
+import { db } from "@repo/db";
+import { Request, Response } from "express";
+import { AppError } from "../utils/errorClasses";
+import { messageSchema } from "@repo/zod";
+import { conversationsTable, messagesTable } from "@repo/db/schema";
+import { generateResponse } from "../ai";
+import { getRecentConversationMessages } from "../services/db/conversationsServices";
+import { eq } from "drizzle-orm";
+
+export const listConversations = async (_req: Request, res: Response) => {
+  const conversations = await db.select().from(conversationsTable);
+  res.status(200).json({ success: true, data: conversations });
+};
+
+export const userQuery = async (req: Request, res: Response) => {
+  const inputs = messageSchema.safeParse(req.body);
+
+  if (!inputs.success) {
+    throw new AppError(inputs.error.message ?? "Invalid inputs", 400);
+  }
+
+  let conversationId = inputs.data.conversationId;
+
+  if (!conversationId) {
+    const conversation = await db
+      .insert(conversationsTable)
+      .values({})
+      .returning();
+    conversationId = conversation[0].id;
+  } else {
+    const [existingConversation] = await db
+      .select()
+      .from(conversationsTable)
+      .where(eq(conversationsTable.id, conversationId))
+      .limit(1);
+    if (!existingConversation) {
+      throw new AppError("Conversation not found", 404);
+    }
+  }
+
+  const response = await generateResponse(conversationId!, inputs.data.text);
+
+  res.status(200).json({ success: true, data: response, conversationId });
+};
+
+export const getConversationMessages = async (req: Request, res: Response) => {
+  const { conversationId } = req.params;
+  if (!conversationId) {
+    throw new AppError("Conversation ID is required", 400);
+  }
+
+  const messages = await getRecentConversationMessages(conversationId);
+  res.status(200).json({ success: true, data: messages });
+};

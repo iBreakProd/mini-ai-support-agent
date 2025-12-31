@@ -6,6 +6,7 @@ import {
   serial,
   pgTable,
   numeric,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const conversationsTable = pgTable("conversation", {
@@ -44,9 +45,6 @@ export const productsTable = pgTable("products", {
 
 export const ordersTable = pgTable("orders", {
   id: uuid().primaryKey().defaultRandom(),
-  productId: uuid()
-    .notNull()
-    .references(() => productsTable.id, { onDelete: "cascade" }),
   shippingAddress: text().notNull(),
   shippingStatus: text().notNull(),
   deliveryDate: timestamp().notNull(),
@@ -60,5 +58,19 @@ export const ordersTable = pgTable("orders", {
   shipping: numeric().notNull(),
   discount: numeric().notNull(),
   total: numeric().notNull(),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const orderItemsTable = pgTable("order_items", {
+  id: uuid().primaryKey().defaultRandom(),
+  orderId: uuid()
+    .notNull()
+    .references(() => ordersTable.id, { onDelete: "cascade" }),
+  productId: uuid()
+    .notNull()
+    .references(() => productsTable.id, { onDelete: "cascade" }),
+  quantity: integer().notNull().default(1),
+  unitPrice: numeric().notNull(),
+  lineTotal: numeric().notNull(),
   createdAt: timestamp().defaultNow(),
 });

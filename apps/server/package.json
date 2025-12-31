@@ -12,9 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@repo/db": "workspace:*",
     "@repo/eslint-config": "workspace:*",
-    "@repo/zod": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -23,9 +21,13 @@
     "typescript": "5.9.2"
   },
   "dependencies": {
+    "@repo/db": "workspace:*",
+    "@repo/redis": "workspace:*",
+    "@repo/zod": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "openai": "^6.15.0"
   }
 }
