@@ -1,6 +1,6 @@
 import { RATE_LIMITS } from "../../global/constants";
 import { getRedisClient } from "./client";
-import { AppError } from "../../utils/errorClasses";
+import { Request } from "express";
 
 interface FixedWindowOptions {
   key: string;
@@ -43,9 +43,24 @@ export async function rateLimitCreateProduct() {
     ...RATE_LIMITS.createProduct,
   });
 }
-export async function rateLimitUserQuery() {
+export async function rateLimitUserQuery(req: Request) {
+  const userId = (req as Request & { user: { id: string } }).user.id;
+  const key = userId ? `rl:user-query:${userId}` : `rl:user-query:ip:${(req as Request & { ip: string }).ip ?? "unknown"}`;
+  return rateLimitByKey(key, RATE_LIMITS.userQuery);
+}
+
+export async function rateLimitByKey(key: string, config: { windowSeconds: number, max: number }) {
   return incrementFixedWindow({
-    key: "rl:user-query:global",
-    ...RATE_LIMITS.userQuery,
+    key,
+    ...config,
   });
+}
+
+export async function rateLimitProfileUpdate(req: Request) {
+  const userId = (req as Request & { user: { id: string } }).user.id;
+  if (!userId) return { allowed: true, ttlSeconds: 0 };
+  return rateLimitByKey(
+    `rl:profile-update:${userId}`,
+    RATE_LIMITS.profileUpdate
+  );
 }

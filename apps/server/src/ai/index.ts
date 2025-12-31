@@ -11,13 +11,16 @@ import { AppError } from "../utils/errorClasses";
 
 export const generateResponse = async (
   conversationId: string,
-  userQuery: string
+  userQuery: string,
+  userId?: string
 ) => {
   try {
     const history = await getRecentConversationMessages(conversationId);
 
+    const userContext = userId ? `\n\nThe current user id is ${userId}. Use getUserProfile tool with userId parameter when the user asks about hydration, lifestyle, or personalized advice.` : "";
+
     const messages = [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: systemPrompt + userContext },
       ...history.map((message: typeof messagesTable) => ({
         role: message.sender,
         content: message.text,
@@ -56,7 +59,7 @@ export const generateResponse = async (
         continue;
       }
       try {
-        toolResult = await toolRunner(call.function.name, args);
+        toolResult = await toolRunner(call.function.name, args, { userId });
       } catch (error) {
         toolResult = { error: "Tool execution failed, please try again" };
         continue;
@@ -66,6 +69,7 @@ export const generateResponse = async (
       messages.push({
         role: "tool",
         tool_call_id: call.id,
+        iteration_number: toolCallIterations,
         content: JSON.stringify(toolResult),
       });
 
@@ -94,6 +98,7 @@ export const generateResponse = async (
     }
 
     const parsedResponse = aiResponseSchema.safeParse(parsedResponseJson);
+    
     if (!parsedResponse.success) {
       throw new AppError(
         "Ai responded with invalid data, please try again",

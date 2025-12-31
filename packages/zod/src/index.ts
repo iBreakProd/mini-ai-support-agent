@@ -59,3 +59,10 @@ export const aiResponseSchema = z.discriminatedUnion("type", [
     resourceType: z.enum(["product", "order"]),
   }),
 ]);
+
+export const userProfileSchema = z.object({
+  activityLevel: z.enum(["sedentary", "moderate", "active"]),
+  climate: z.enum(["dry", "humid", "temperate"]),
+  dietaryPreference: z.string().trim().min(1).optional(),
+  hydrationGoal: z.string().trim().min(1).optional(),
+});

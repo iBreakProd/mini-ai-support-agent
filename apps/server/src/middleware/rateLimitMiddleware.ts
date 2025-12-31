@@ -1,17 +1,18 @@
 import {
   rateLimitCreateOrder,
   rateLimitCreateProduct,
+  rateLimitProfileUpdate,
   rateLimitUserQuery,
 } from "../services/redis/rateLimit";
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/errorClasses";
 
 function makeRateLimitMiddleware(
-  limiter: () => Promise<{ allowed: boolean; ttlSeconds: number }>
+  limiter: (req: Request) => Promise<{ allowed: boolean; ttlSeconds: number }>
 ) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { allowed, ttlSeconds } = await limiter();
+      const { allowed, ttlSeconds } = await limiter(req);
       if (!allowed) {
         next(
           new AppError(
@@ -34,4 +35,5 @@ export const rateLimitCreateOrderMw =
 export const rateLimitCreateProductMw = makeRateLimitMiddleware(
   rateLimitCreateProduct
 );
-export const rateLimitUserQueryMw = makeRateLimitMiddleware(rateLimitUserQuery);
+export const rateLimitUserQueryMw = makeRateLimitMiddleware((req: Request) => rateLimitUserQuery(req));
+export const rateLimitProfileUpdateMw = makeRateLimitMiddleware((req: Request) => rateLimitProfileUpdate(req));

@@ -3,7 +3,7 @@ import router from "./routers/index";
 import cors from "cors";
 import { envChecker } from "./utils/envChecker";
 import { healthChecker } from "./controllers/healthControllers";
-import { errorMiddleware } from "./middleware/errorMiddleware";
+import { errorHandler } from "./handlers/errorHandler";
 
 envChecker();
 
@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use("/api/v1", router);
 app.use("/health", healthChecker);
-app.use(errorMiddleware);
+app.use(errorHandler);
 
 app.listen(process.env.HTTP_PORT, () => {
   console.log(`Express server running on port: ${process.env.HTTP_PORT}`);

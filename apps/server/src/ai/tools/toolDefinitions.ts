@@ -116,4 +116,45 @@ export const tools: ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "getUserProfile",
+      description:
+        "Get the user's hydration and lifestyle profile (activity level, climate, dietary preference, hydration goal). Use when the user asks about hydration tips, their routine, or personalized advice.",
+      parameters: {
+        type: "object",
+        properties: {
+          userId: {
+            type: "string",
+            description: "The id of the user whose profile to fetch",
+          },
+        },
+        required: ["userId"],
+        additionalProperties: false,
+        example: { userId: "uuid-here" },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "updateUserProfile",
+      description:
+        "Update the user's hydration/lifestyle profile. Use when the user explicitly states a change (e.g., 'I moved to a desert', 'I'm more active now').",
+      parameters: {
+        type: "object",
+        properties: {
+          userId: { type: "string", description: "The id of the user" },
+          activityLevel: { type: "string", description: "sedentary | moderate | active" },
+          climate: { type: "string", description: "dry | humid | temperate" },
+          dietaryPreference: { type: "string" },
+          hydrationGoal: { type: "string" },
+        },
+        required: ["userId"],
+        additionalProperties: false,
+        example: { userId: "uuid", activityLevel: "active", climate: "dry" },
+      },
+    },
+  },
 ];

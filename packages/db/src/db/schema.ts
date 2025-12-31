@@ -11,6 +11,9 @@ import {
 
 export const conversationsTable = pgTable("conversation", {
   id: uuid().primaryKey().defaultRandom(),
+  userId: uuid()
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
   createdAt: timestamp().defaultNow(),
 });
 
@@ -59,6 +62,9 @@ export const ordersTable = pgTable("orders", {
   discount: numeric().notNull(),
   total: numeric().notNull(),
   createdAt: timestamp().defaultNow(),
+  userId: uuid()
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
 });
 
 export const orderItemsTable = pgTable("order_items", {
@@ -73,4 +79,33 @@ export const orderItemsTable = pgTable("order_items", {
   unitPrice: numeric().notNull(),
   lineTotal: numeric().notNull(),
   createdAt: timestamp().defaultNow(),
+});
+
+export const usersTable = pgTable("users", {
+  id: uuid().primaryKey().defaultRandom(),
+  name: text().notNull(),
+  email: text().notNull(),
+  password: text().notNull(),
+  imageUrl: text().notNull(),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const activityLevelEnum = pgEnum("activity_level", [
+  "sedentary",
+  "moderate",
+  "active",
+]);
+
+export const climateEnum = pgEnum("climate", ["dry", "humid", "temperate"]);
+
+export const userProfilesTable = pgTable("user_profiles", {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: uuid()
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
+  activityLevel: activityLevelEnum().notNull(),
+  climate: climateEnum().notNull(),
+  dietaryPreference: text(),
+  hydrationGoal: text(),
+  updatedAt: timestamp().defaultNow(),
 });

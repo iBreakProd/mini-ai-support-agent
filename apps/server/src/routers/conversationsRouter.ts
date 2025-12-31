@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { asyncHandler } from "../utils/asyncHandler";
+import { asyncHandler } from "../handlers/asyncHandler";
 import {
   listConversations,
   userQuery,
