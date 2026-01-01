@@ -6,13 +6,14 @@ import {
   getConversationMessages,
 } from "../controllers/conversationsControllers";
 import { rateLimitUserQueryMw } from "../middleware/rateLimitMiddleware";
+import { optionalAuth } from "../middleware/authMiddleware";
 
 const router: Router = Router();
 
 router
   .route("/")
   .get(asyncHandler(listConversations))
-  .post(rateLimitUserQueryMw, asyncHandler(userQuery));
+  .post(optionalAuth, rateLimitUserQueryMw, asyncHandler(userQuery));
 
 router
   .route("/:conversationId/messages")

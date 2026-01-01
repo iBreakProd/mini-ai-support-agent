@@ -28,12 +28,12 @@ export const createOrderSchema = z.object({
     .min(1),
   shippingAddress: z.string().trim().min(1),
   shippingStatus: z.string().trim().min(1),
-  deliveryDate: z.date(),
+  deliveryDate: z.coerce.date(),
   deliveryTime: z.string().trim().min(1),
   deliveryInstructions: z.string().trim().min(1),
   paymentStatus: z.string().trim().min(1),
   paymentMethod: z.string().trim().min(1),
-  paymentDate: z.date(),
+  paymentDate: z.coerce.date(),
   totalPrice: z.number().min(0),
   tax: z.number().min(0),
   shipping: z.number().min(0),
@@ -63,6 +63,18 @@ export const aiResponseSchema = z.discriminatedUnion("type", [
 export const userProfileSchema = z.object({
   activityLevel: z.enum(["sedentary", "moderate", "active"]),
   climate: z.enum(["dry", "humid", "temperate"]),
-  dietaryPreference: z.string().trim().min(1).optional(),
-  hydrationGoal: z.string().trim().min(1).optional(),
+  dietaryPreference: z.string().trim().optional(),
+  hydrationGoal: z.string().trim().optional(),
+});
+
+export const signupSchema = z.object({
+  name: z.string().trim().min(1),
+  email: z.email(),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  imageUrl: z.url().optional(),
+});
+
+export const loginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(1, "Password is required"),
 });

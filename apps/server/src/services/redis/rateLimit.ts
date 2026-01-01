@@ -44,8 +44,8 @@ export async function rateLimitCreateProduct() {
   });
 }
 export async function rateLimitUserQuery(req: Request) {
-  const userId = (req as Request & { user: { id: string } }).user.id;
-  const key = userId ? `rl:user-query:${userId}` : `rl:user-query:ip:${(req as Request & { ip: string }).ip ?? "unknown"}`;
+  const userId = (req as Request & { user: { id: string } }).user?.id ?? null;
+  const key = userId ? `rl:user-query:${userId}` : `rl:user-query:ip:${(req as any).ip ?? req.socket?.remoteAddress ?? "unknown"}`;
   return rateLimitByKey(key, RATE_LIMITS.userQuery);
 }
 
@@ -63,4 +63,10 @@ export async function rateLimitProfileUpdate(req: Request) {
     `rl:profile-update:${userId}`,
     RATE_LIMITS.profileUpdate
   );
+}
+
+export async function rateLimitSignIn(req: Request) {
+  const ip = (req as any).ip ?? req.socket?.remoteAddress ?? "unknown";
+  const key = `rl:sign-in:${ip}`;
+  return rateLimitByKey(key, RATE_LIMITS.signIn);
 }

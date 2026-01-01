@@ -12,7 +12,7 @@ export const errorHandler = (
 
   console.error(err);
 
-  if (retryAfterSeconds) {
+  if (retryAfterSeconds !== undefined && retryAfterSeconds !== null) {
     res.status(status).json({ message, success: false, retryAfterSeconds });
     return;
   }

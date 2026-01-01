@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/errorClasses";
+import { verifyToken } from "../utils/jwt";
 
-// Replace this with your actual session validation (Better Auth getSession, etc.)
-// For now, this is a placeholder that shows the shape.
-async function getSessionFromRequest(req: Request): Promise<{ user: { id: string; name: string; email: string } } | null> {
-  // Better Auth: auth.api.getSession({ headers: req.headers })
-  // For local dev/testing, you could read a header like x-user-id
-  return null;
+const COOKIE_NAME = process.env.COOKIE_NAME ?? "session_token";
+
+async function getSessionFromRequest(req: Request): Promise<{ user: { id: string } } | null> {
+  const token = req.cookies?.[COOKIE_NAME];
+  if (!token) return null;
+  const payload = verifyToken(token);
+  if (!payload) return null;
+  return { user: { id: payload.userId } };
 }
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {

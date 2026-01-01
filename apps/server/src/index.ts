@@ -4,13 +4,21 @@ import cors from "cors";
 import { envChecker } from "./utils/envChecker";
 import { healthChecker } from "./controllers/healthControllers";
 import { errorHandler } from "./handlers/errorHandler";
+import cookieParser from "cookie-parser";
+import passport from "./config/passport";
 
 envChecker();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [process.env.FRONTEND_URL! as string],
+  credentials: true,
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(passport.initialize());
+app.set("trust proxy", 1);
 
 app.use("/api/v1", router);
 app.use("/health", healthChecker);

@@ -12,8 +12,7 @@ import {
 export const conversationsTable = pgTable("conversation", {
   id: uuid().primaryKey().defaultRandom(),
   userId: uuid()
-    .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
+    .references(() => usersTable.id, { onDelete: "set null" }),
   createdAt: timestamp().defaultNow(),
 });
 
@@ -62,9 +61,6 @@ export const ordersTable = pgTable("orders", {
   discount: numeric().notNull(),
   total: numeric().notNull(),
   createdAt: timestamp().defaultNow(),
-  userId: uuid()
-    .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
 });
 
 export const orderItemsTable = pgTable("order_items", {
@@ -85,7 +81,7 @@ export const usersTable = pgTable("users", {
   id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
   email: text().notNull(),
-  password: text().notNull(),
+  password: text(),
   imageUrl: text().notNull(),
   createdAt: timestamp().defaultNow(),
 });

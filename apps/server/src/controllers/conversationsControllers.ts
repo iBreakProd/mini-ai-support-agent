@@ -20,11 +20,12 @@ export const userQuery = async (req: Request, res: Response) => {
   }
 
   let conversationId = inputs.data.conversationId;
+  let userId = (req as Request & { user: { id: string } }).user?.id;
 
   if (!conversationId) {
     const conversation = await db
       .insert(conversationsTable)
-      .values({})
+      .values({userId: userId ?? null})
       .returning();
     conversationId = conversation[0].id;
   } else {
@@ -38,7 +39,6 @@ export const userQuery = async (req: Request, res: Response) => {
     }
   }
 
-  const userId = (req as Request & { user: { id: string } }).user.id ?? undefined;
   const response = await generateResponse(conversationId!, inputs.data.text, userId);
 
   res.status(200).json({ success: true, data: response, conversationId });

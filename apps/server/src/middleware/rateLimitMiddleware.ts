@@ -2,6 +2,7 @@ import {
   rateLimitCreateOrder,
   rateLimitCreateProduct,
   rateLimitProfileUpdate,
+  rateLimitSignIn,
   rateLimitUserQuery,
 } from "../services/redis/rateLimit";
 import { Request, Response, NextFunction } from "express";
@@ -37,3 +38,4 @@ export const rateLimitCreateProductMw = makeRateLimitMiddleware(
 );
 export const rateLimitUserQueryMw = makeRateLimitMiddleware((req: Request) => rateLimitUserQuery(req));
 export const rateLimitProfileUpdateMw = makeRateLimitMiddleware((req: Request) => rateLimitProfileUpdate(req));
+export const rateLimitSignInMw = makeRateLimitMiddleware((req: Request) => rateLimitSignIn(req));
