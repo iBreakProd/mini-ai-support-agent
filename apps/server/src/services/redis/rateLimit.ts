@@ -70,3 +70,12 @@ export async function rateLimitSignIn(req: Request) {
   const key = `rl:sign-in:${ip}`;
   return rateLimitByKey(key, RATE_LIMITS.signIn);
 }
+
+export async function rateLimitGenerateDescription(req: Request) {
+  const userId = (req as Request & { user: { id: string } }).user?.id;
+  if (!userId) return { allowed: false, ttlSeconds: RATE_LIMITS.generateDescription.windowSeconds };
+  return rateLimitByKey(
+    `rl:generate-desc:${userId}`,
+    RATE_LIMITS.generateDescription
+  );
+}

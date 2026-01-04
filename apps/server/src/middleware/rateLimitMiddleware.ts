@@ -1,6 +1,7 @@
 import {
   rateLimitCreateOrder,
   rateLimitCreateProduct,
+  rateLimitGenerateDescription,
   rateLimitProfileUpdate,
   rateLimitSignIn,
   rateLimitUserQuery,
@@ -39,3 +40,6 @@ export const rateLimitCreateProductMw = makeRateLimitMiddleware(
 export const rateLimitUserQueryMw = makeRateLimitMiddleware((req: Request) => rateLimitUserQuery(req));
 export const rateLimitProfileUpdateMw = makeRateLimitMiddleware((req: Request) => rateLimitProfileUpdate(req));
 export const rateLimitSignInMw = makeRateLimitMiddleware((req: Request) => rateLimitSignIn(req));
+export const rateLimitGenerateDescMw = makeRateLimitMiddleware(
+  (req: Request) => rateLimitGenerateDescription(req)
+);

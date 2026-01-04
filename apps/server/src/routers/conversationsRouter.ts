@@ -12,7 +12,7 @@ const router: Router = Router();
 
 router
   .route("/")
-  .get(asyncHandler(listConversations))
+  .get(optionalAuth, asyncHandler(listConversations))
   .post(optionalAuth, rateLimitUserQueryMw, asyncHandler(userQuery));
 
 router

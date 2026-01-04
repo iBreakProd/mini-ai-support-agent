@@ -33,7 +33,7 @@ export function Footer() {
         <div className="col-span-1">
           <Link
             to="/"
-            className="h-10 w-10 bg-primary rounded flex items-center justify-center text-white font-bold text-xl mb-6 overflow-hidden p-1 inline-block"
+            className="h-10 w-10 bg-primary rounded flex items-center justify-center text-white font-bold text-xl mb-6 overflow-hidden p-1"
           >
             <img
               alt="Arctic Logo"

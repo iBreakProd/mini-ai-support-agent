@@ -121,7 +121,6 @@ body {
   }
 }
 
-/* Custom utility classes */
 .text-outline {
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
   color: transparent;
@@ -132,6 +131,10 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;
+}
+
+.product-card-hover:hover .product-img {
+  transform: scale(1.05);
 }
 
 .bg-grid-pattern {
@@ -175,7 +178,6 @@ body {
   border-bottom-left-radius: 12px;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -190,7 +192,6 @@ body {
   background: #308ce8;
 }
 
-/* Marquee animation */
 @keyframes marquee {
   0% {
     transform: translateX(0);

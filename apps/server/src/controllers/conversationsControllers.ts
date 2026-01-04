@@ -7,8 +7,14 @@ import { generateResponse } from "../ai";
 import { getRecentConversationMessages } from "../services/db/conversationsServices";
 import { eq } from "drizzle-orm";
 
-export const listConversations = async (_req: Request, res: Response) => {
-  const conversations = await db.select().from(conversationsTable);
+export const listConversations = async (req: Request, res: Response) => {
+  const userId = (req as Request & { user?: { id: string } }).user?.id;
+  const conversations = userId
+    ? await db
+        .select()
+        .from(conversationsTable)
+        .where(eq(conversationsTable.userId, userId))
+    : [];
   res.status(200).json({ success: true, data: conversations });
 };
 

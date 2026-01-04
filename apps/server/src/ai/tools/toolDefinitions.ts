@@ -74,6 +74,21 @@ export const tools: ChatCompletionTool[] = [
   {
     type: "function",
     function: {
+      name: "getAppPurpose",
+      description:
+        "Get information about the app's purpose. Use when the user asks: What is this app? What does Arctic do? What is the AI's purpose? What does this application do? Why was this built?",
+      parameters: {
+        type: "object",
+        properties: {},
+        required: [],
+        additionalProperties: false,
+        example: {},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "getCompanyInformation",
       description:
         "Get company information, includes support details, mission, terms and conditions, sourcing and quality, sustainability, etc.",

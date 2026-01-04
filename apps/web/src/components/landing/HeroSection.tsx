@@ -47,7 +47,7 @@ export function HeroSection() {
               className="w-full h-full object-cover opacity-90 mix-blend-overlay hover:scale-105 transition-transform duration-700 ease-out"
               src={BOTTLE_IMAGE}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-background-dark via-transparent to-transparent" />
           </div>
           <div className="absolute bottom-6 left-6">
             <div className="bg-background-dark/80 backdrop-blur border border-neutral-border p-3 rounded">

@@ -33,7 +33,7 @@ const PRODUCTS = [
 export function ProductsSection() {
   return (
     <section className="py-20 px-4 md:px-12 bg-neutral-dark/50 border-t border-b border-neutral-border relative">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary to-transparent opacity-50" />
       <div className="flex justify-between items-end mb-12">
         <h2 className="text-4xl md:text-5xl font-bold uppercase font-display">
           Collection<span className="text-primary">.</span>

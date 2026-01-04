@@ -4,6 +4,7 @@ import {
   listAllProducts,
 } from "../../services/db/productServices";
 import {
+  fetchAppPurpose,
   fetchCompanyInformation,
   fetchShippingPolicy,
   fetchReturnsAndRefundsPolicy,
@@ -27,6 +28,8 @@ export const toolRunner = async (
       return listAllOrders();
     case "listAllProducts":
       return listAllProducts();
+    case "getAppPurpose":
+      return fetchAppPurpose();
     case "getCompanyInformation":
       return fetchCompanyInformation();
     case "getShippingPolicy":

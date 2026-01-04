@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContextHook";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
   { label: "Orders", href: "/orders" },
+  { label: "Support", href: "/support" },
   { label: "Docs", href: "/docs" },
 ];
 
 export function MobileHeader() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <>
@@ -58,6 +61,52 @@ export function MobileHeader() {
                   </Link>
                 </li>
               ))}
+              <li className="border-t border-neutral-border pt-3 mt-2">
+                {isAuthenticated && user ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 py-2">
+                      {user.imageUrl ? (
+                        <img
+                          src={user.imageUrl}
+                          alt={user.name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="w-8 h-8 rounded-full bg-linear-to-br from-primary via-primary-dark to-indigo-600"
+                          aria-hidden
+                        />
+                      )}
+                      <span className="text-sm text-gray-400">{user.name}</span>
+                    </div>
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-2 py-2 text-sm hover:text-primary"
+                    >
+                      <User className="size-4" /> Profile
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsOpen(false);
+                        logout();
+                      }}
+                      className="flex items-center gap-2 py-2 text-sm hover:text-primary w-full text-left"
+                    >
+                      <LogOut className="size-4" /> Log out
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="block py-3 text-sm font-bold tracking-widest hover:text-primary transition-colors"
+                  >
+                    Login
+                  </Link>
+                )}
+              </li>
             </ul>
           </nav>
         </>

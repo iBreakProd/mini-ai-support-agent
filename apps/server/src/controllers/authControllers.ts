@@ -27,7 +27,7 @@ export const signup = async (req: Request, res: Response) => {
     name,
     email,
     password: hashedPassword,
-    imageUrl: imageUrl ?? "https://example.com/avatar.png",
+    imageUrl: imageUrl ?? "",
   }).returning();
 
   if (!user) throw new AppError("Failed to create user", 500);
@@ -53,13 +53,13 @@ export const login = async (req: Request, res: Response) => {
   const { email, password } = parsed.data;
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
-  if (!user) throw new AppError("Invalid email or password", 401);
+  if (!user) throw new AppError("Email not found", 401);
   if (!user.password) {
     throw new AppError("Please sign in with Google", 401);
   }
 
   const match = await bcrypt.compare(password, user.password);
-  if (!match) throw new AppError("Invalid email or password", 401);
+  if (!match) throw new AppError("Password is incorrect", 401);
 
   const token = signToken({ userId: user.id, email: user.email });
 
