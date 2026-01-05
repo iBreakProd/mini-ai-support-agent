@@ -36,8 +36,8 @@ export function ProductsPage() {
 
   return (
     <AppShell>
-      <main className="lg:pl-20 min-h-screen bg-grid-pattern p-4 md:p-8 lg:pl-24 lg:pr-8">
-        <div className="max-w-5xl mx-auto pt-12">
+      <main className="lg:pl-24 min-h-screen bg-grid-pattern p-4 md:p-8 lg:pr-8">
+        <div className="max-w-5xl mx-auto pt-24 lg:pt-12">
           <div className="mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-none tracking-tighter mb-4">

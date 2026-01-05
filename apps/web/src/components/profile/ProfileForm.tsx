@@ -51,73 +51,88 @@ export function ProfileForm() {
     });
   };
 
+  const inputClass =
+    "w-full px-4 py-2.5 rounded-lg border border-neutral-border bg-background-dark text-white placeholder:text-gray-500 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-colors";
+  const labelClass = "block text-sm font-medium text-gray-400 mb-1.5";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <h2 className="text-2xl font-bold text-white">Hydration profile</h2>
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       {mutation.isError && (
         <p className="text-sm text-red-400">{mutation.error?.message}</p>
       )}
       {mutation.isSuccess && (
         <p className="text-sm text-green-400">Saved!</p>
       )}
-      <div>
-        <label className="block text-sm text-gray-400 mb-1">Activity level</label>
-        <select
-          value={form.activityLevel}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              activityLevel: e.target.value as Profile["activityLevel"],
-            }))
-          }
-          className="w-full px-4 py-2 rounded-lg border border-neutral-border bg-background-dark text-white"
-        >
-          <option value="sedentary">Sedentary</option>
-          <option value="moderate">Moderate</option>
-          <option value="active">Active</option>
-        </select>
+      <div className="rounded-lg border border-white/10 bg-white/5 p-6 space-y-4">
+        <h4 className="font-semibold text-white">Lifestyle</h4>
+        <div>
+          <label className={labelClass}>Activity level</label>
+          <select
+            value={form.activityLevel}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                activityLevel: e.target.value as Profile["activityLevel"],
+              }))
+            }
+            className={inputClass}
+          >
+            <option value="sedentary">Sedentary — desk job, little exercise</option>
+            <option value="moderate">Moderate — regular walks, light activity</option>
+            <option value="active">Active — frequent workouts, high activity</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>Climate</label>
+          <select
+            value={form.climate}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                climate: e.target.value as Profile["climate"],
+              }))
+            }
+            className={inputClass}
+          >
+            <option value="dry">Dry — low humidity, desert or arid</option>
+            <option value="humid">Humid — high humidity, tropical</option>
+            <option value="temperate">Temperate — moderate, varied seasons</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <label className="block text-sm text-gray-400 mb-1">Climate</label>
-        <select
-          value={form.climate}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              climate: e.target.value as Profile["climate"],
-            }))
-          }
-          className="w-full px-4 py-2 rounded-lg border border-neutral-border bg-background-dark text-white"
-        >
-          <option value="dry">Dry</option>
-          <option value="humid">Humid</option>
-          <option value="temperate">Temperate</option>
-        </select>
+      <div className="rounded-lg border border-white/10 bg-white/5 p-6 space-y-4">
+        <h4 className="font-semibold text-white">Preferences (optional)</h4>
+        <div>
+          <label className={labelClass}>Dietary preference</label>
+          <input
+            type="text"
+            placeholder="e.g. Low sodium, vegan, high protein"
+            value={form.dietaryPreference ?? ""}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, dietaryPreference: e.target.value }))
+            }
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>Hydration goal</label>
+          <input
+            type="text"
+            placeholder="e.g. 2L daily, stay ahead of thirst, optimize for workouts"
+            value={form.hydrationGoal ?? ""}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, hydrationGoal: e.target.value }))
+            }
+            className={inputClass}
+          />
+        </div>
       </div>
-      <input
-        type="text"
-        placeholder="Dietary preference (optional)"
-        value={form.dietaryPreference ?? ""}
-        onChange={(e) =>
-          setForm((f) => ({ ...f, dietaryPreference: e.target.value }))
-        }
-        className="w-full px-4 py-2 rounded-lg border border-neutral-border bg-background-dark text-white"
-      />
-      <input
-        type="text"
-        placeholder="Hydration goal (optional)"
-        value={form.hydrationGoal ?? ""}
-        onChange={(e) =>
-          setForm((f) => ({ ...f, hydrationGoal: e.target.value }))
-        }
-        className="w-full px-4 py-2 rounded-lg border border-neutral-border bg-background-dark text-white"
-      />
       <button
         type="submit"
         disabled={mutation.isPending}
-        className="w-full py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-50"
+        className="w-full py-3 rounded-lg bg-primary text-white font-bold disabled:opacity-50 hover:bg-primary-dark transition-colors"
       >
-        {mutation.isPending ? "Saving…" : "Save"}
+        {mutation.isPending ? "Saving…" : "Save profile"}
       </button>
     </form>
   );

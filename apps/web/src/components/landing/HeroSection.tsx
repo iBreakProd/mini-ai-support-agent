@@ -6,7 +6,7 @@ const BOTTLE_IMAGE =
 
 export function HeroSection() {
   return (
-    <section className="relative z-10 p-4 md:p-8 lg:p-12 min-h-screen flex flex-col justify-center">
+    <section className="relative z-10 pt-24 px-4 pb-4 md:px-8 md:pb-8 lg:pt-12 lg:px-12 lg:pb-12 min-h-screen flex flex-col justify-center">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-0 border border-neutral-border bg-background-dark/50 backdrop-blur-sm rounded-lg overflow-hidden shadow-2xl">
         <div className="md:col-span-7 lg:col-span-8 p-8 md:p-12 lg:p-16 border-b md:border-b-0 md:border-r border-neutral-border flex flex-col justify-between relative overflow-hidden group">
           <div className="absolute inset-0 bg-grain opacity-20 pointer-events-none" />

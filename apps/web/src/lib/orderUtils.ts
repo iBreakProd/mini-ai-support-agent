@@ -1,6 +1,17 @@
-type OrderRow = {
-  orders: { id: string };
-  order_items: unknown;
+export type OrderRow = {
+  orders: {
+    id: string;
+    shippingStatus: string;
+    total: string;
+    createdAt: string;
+    paymentMethod: string;
+  };
+  order_items: {
+    productId: string;
+    quantity: number;
+    unitPrice: string;
+    lineTotal: string;
+  };
 };
 
 export function groupOrdersByOrderId<T extends OrderRow>(rows: T[]) {

@@ -36,7 +36,7 @@ export function SupportPage() {
     return (
       <AppShell>
         <main className="lg:pl-20 min-h-screen bg-grid-pattern p-4 md:p-12">
-          <div className="max-w-6xl mx-auto pt-12">
+          <div className="max-w-6xl mx-auto pt-24 lg:pt-12">
             <div className="mb-8">
               <h1 className="text-3xl font-bold font-display mb-2">Support</h1>
               <p className="text-gray-400 mb-6">
@@ -64,7 +64,7 @@ export function SupportPage() {
     return (
       <AppShell>
         <main className="lg:pl-20 min-h-screen bg-grid-pattern p-4 md:p-12">
-          <div className="max-w-6xl mx-auto pt-12">
+          <div className="max-w-6xl mx-auto pt-24 lg:pt-12">
             <button
               type="button"
               onClick={() => setView("list")}
@@ -89,7 +89,7 @@ export function SupportPage() {
   return (
     <AppShell>
       <main className="lg:pl-20 min-h-screen bg-grid-pattern p-4 md:p-12">
-        <div className="max-w-6xl mx-auto pt-12">
+        <div className="max-w-6xl mx-auto pt-24 lg:pt-12">
           <div className="mb-8">
             <h1 className="text-3xl font-bold font-display mb-2">Support</h1>
             <p className="text-gray-400">

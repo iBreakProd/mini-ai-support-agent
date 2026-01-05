@@ -1,20 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 import api from "@/lib/api";
 import { AppShell } from "@/components/layout/AppShell";
-import { OrderCard } from "@/components/orders/OrderCard";
+import { Modal } from "@/components/ui/Modal";
+import { OrderCard, type ProductForOrder } from "@/components/orders/OrderCard";
 import { CheckoutForm } from "@/components/orders/CheckoutForm";
 import { groupOrdersByOrderId } from "@/lib/orderUtils";
 
 export function OrdersPage() {
   const location = useLocation();
   const addProduct = (location.state as { addProduct?: { productId: string; quantity: number } })?.addProduct;
-  const [tab, setTab] = useState<"history" | "new">(() => (addProduct ? "new" : "history"));
-
-  useEffect(() => {
-    if (addProduct) setTab("new");
-  }, [addProduct]);
+  const [showAddOrder, setShowAddOrder] = useState(() => !!addProduct);
 
   const { data: orders, isLoading: ordersLoading, isError: ordersError, error: ordersErrorObj } = useQuery({
     queryKey: ["orders"],
@@ -39,7 +37,26 @@ export function OrdersPage() {
     price: p.price,
   }));
 
-  if (ordersLoading && tab === "history")
+  const initialCart = useMemo(() => {
+    if (!addProduct || !products?.length) return undefined;
+    const p = products.find((pr: { id: string }) => pr.id === addProduct!.productId);
+    if (!p) return undefined;
+    const qty = Math.max(1, addProduct.quantity);
+    const unitPrice = Number.parseFloat((p as { price: string }).price);
+    return [{ productId: p.id, quantity: qty, unitPrice, lineTotal: unitPrice * qty }];
+  }, [addProduct, products]);
+
+  const productsForOrders: ProductForOrder[] = (products ?? []).map(
+    (p: { id: string; name: string; imageUrl: string; subCategory: string; category?: string }) => ({
+      id: p.id,
+      name: p.name,
+      imageUrl: p.imageUrl,
+      subCategory: p.subCategory,
+      category: p.category,
+    })
+  );
+
+  if (ordersLoading)
     return (
       <AppShell>
         <div className="min-h-screen flex items-center justify-center">
@@ -58,50 +75,53 @@ export function OrdersPage() {
 
   return (
     <AppShell>
-      <main className="lg:pl-20 min-h-screen bg-grid-pattern p-4 md:p-12">
-        <div className="max-w-6xl mx-auto pt-12">
-          <h1 className="text-3xl font-bold font-display mb-2">Orders</h1>
-          <p className="text-gray-400 mb-6">
-            Place a new order or view your order history. Open to all visitors.
-          </p>
-
-          <div className="flex gap-4 mb-8 border-b border-neutral-border">
+      <main className="lg:pl-24 min-h-screen bg-grid-pattern p-4 md:p-8 lg:pr-8 relative">
+        <div className="fixed top-20 right-20 w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none z-0" />
+        <div className="fixed bottom-20 left-40 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] pointer-events-none z-0" />
+        <div className="relative z-10 max-w-5xl mx-auto pt-24 lg:pt-12">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-12 border-b border-neutral-border pb-8 gap-6">
+            <div>
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
+                ORDER <br/> <span className="text-outline">HISTORY</span>
+              </h1>
+              <p className="text-gray-400 mt-4 max-w-xl">
+                Track your hydration hardware. View past acquisitions, shipping telemetry, and digital receipts for your premium vessels.
+              </p>
+            </div>
             <button
               type="button"
-              onClick={() => setTab("history")}
-              className={`pb-2 font-semibold transition-colors ${
-                tab === "history" ? "text-primary border-b-2 border-primary" : "text-gray-400 hover:text-white"
-              }`}
+              onClick={() => setShowAddOrder(true)}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark w-full md:w-auto transition-colors"
             >
-              Order history
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("new")}
-              className={`pb-2 font-semibold transition-colors ${
-                tab === "new" ? "text-primary border-b-2 border-primary" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              New order
+              <Plus className="size-5" />
+              Add order
             </button>
           </div>
 
-          {tab === "history" ? (
-            <div className="space-y-4">
-              {(orders ?? []).map((row) => (
-                <OrderCard key={row.order.id} row={row} />
-              ))}
-              {(!orders || orders.length === 0) && (
-                <p className="text-gray-400">No orders yet.</p>
-              )}
-            </div>
-          ) : (
-            productsLoading ? (
+          <div className="grid gap-6">
+            {(orders ?? []).map((row) => (
+              <OrderCard key={row.order.id} row={row} products={productsForOrders} />
+            ))}
+            {(!orders || orders.length === 0) && (
+              <p className="text-gray-400">No orders yet.</p>
+            )}
+          </div>
+
+          <Modal
+            open={showAddOrder}
+            onClose={() => setShowAddOrder(false)}
+            title="Add order"
+          >
+            {productsLoading ? (
               <div className="text-gray-400">Loading products…</div>
             ) : (
-              <CheckoutForm products={productOptions} initialAddProduct={addProduct} />
-            )
-          )}
+              <CheckoutForm
+                products={productOptions}
+                initialCart={initialCart}
+                onSuccess={() => setShowAddOrder(false)}
+              />
+            )}
+          </Modal>
         </div>
       </main>
     </AppShell>

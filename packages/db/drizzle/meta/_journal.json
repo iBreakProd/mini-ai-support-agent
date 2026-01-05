@@ -43,6 +43,13 @@
       "when": 1770751569616,
       "tag": "0005_silent_vance_astro",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1770932614939,
+      "tag": "0006_needy_sleepwalker",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { CartSummary, type CartItem } from "./CartSummary";
@@ -11,32 +11,21 @@ export type ProductOption = {
 
 type CheckoutFormProps = {
   products: ProductOption[];
-  initialAddProduct?: { productId: string; quantity: number };
+  initialCart?: CartItem[];
+  onSuccess?: () => void;
 };
 
-export function CheckoutForm({ products, initialAddProduct }: CheckoutFormProps) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const initialAddApplied = useRef(false);
+export function CheckoutForm({ products, initialCart, onSuccess }: CheckoutFormProps) {
+  const [cart, setCart] = useState<CartItem[]>(() => initialCart ?? []);
   const [selectedProductId, setSelectedProductId] = useState("");
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [shippingAddress, setShippingAddress] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
-  const [deliveryTime, setDeliveryTime] = useState("");
+  const [deliveryTime, setDeliveryTime] = useState("12:00");
   const [deliveryInstructions, setDeliveryInstructions] = useState("");
   const [tax, setTax] = useState(0);
   const [shippingCost, setShippingCost] = useState(0);
   const [discount, setDiscount] = useState(0);
-
-  useEffect(() => {
-    if (!initialAddProduct || initialAddApplied.current || products.length === 0 || cart.length > 0) return;
-    const product = products.find((p) => p.id === initialAddProduct.productId);
-    if (!product) return;
-    const quantity = Math.max(1, initialAddProduct.quantity);
-    const unitPrice = Number.parseFloat(product.price);
-    const lineTotal = unitPrice * quantity;
-    setCart([{ productId: product.id, quantity, unitPrice, lineTotal }]);
-    initialAddApplied.current = true;
-  }, [initialAddProduct, products, cart.length]);
 
   const queryClient = useQueryClient();
   const mutation = useMutation({
@@ -44,6 +33,7 @@ export function CheckoutForm({ products, initialAddProduct }: CheckoutFormProps)
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       setCart([]);
+      onSuccess?.();
     },
   });
 
@@ -125,7 +115,6 @@ export function CheckoutForm({ products, initialAddProduct }: CheckoutFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      <h3 className="text-xl font-bold text-white">New order</h3>
       {mutation.isError && (
         <p className="text-sm text-red-400">{mutation.error?.message}</p>
       )}
@@ -196,12 +185,11 @@ export function CheckoutForm({ products, initialAddProduct }: CheckoutFormProps)
             className="px-4 py-2 rounded-lg border border-neutral-border bg-background-dark text-white"
           />
           <input
-            type="text"
+            type="time"
             value={deliveryTime}
             onChange={(e) => setDeliveryTime(e.target.value)}
-            placeholder="Delivery time (e.g. 14:00)"
             required
-            className="px-4 py-2 rounded-lg border border-neutral-border bg-background-dark text-white"
+            className="px-4 py-2 rounded-lg border border-neutral-border bg-background-dark text-white [color-scheme:dark]"
           />
         </div>
         <input

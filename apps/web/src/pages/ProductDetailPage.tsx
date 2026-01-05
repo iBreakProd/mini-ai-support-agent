@@ -95,7 +95,7 @@ export function ProductDetailPage() {
   return (
     <AppShell>
       <main className="lg:pl-24 min-h-screen bg-grid-pattern p-4 md:p-8 lg:pr-8">
-        <div className="max-w-5xl mx-auto pt-12">
+        <div className="max-w-5xl mx-auto pt-24 lg:pt-12">
           <div className="flex items-center text-xs tracking-widest text-gray-500 uppercase mb-8">
             <Link to="/" className="hover:text-primary transition-colors">
               Home

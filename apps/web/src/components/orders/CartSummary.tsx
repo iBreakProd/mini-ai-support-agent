@@ -1,3 +1,5 @@
+import { X } from "lucide-react";
+
 export type CartItem = {
   productId: string;
   quantity: number;
@@ -32,21 +34,24 @@ export function CartSummary({
         {items.map((item) => (
           <li
             key={item.productId}
-            className="flex justify-between items-center text-sm"
+            className="flex items-center gap-3 text-sm"
           >
-            <span className="text-gray-300">
+            <span className="text-gray-300 min-w-0 flex-1 truncate uppercase">
               {item.productName ?? item.productId.slice(0, 8)} × {item.quantity}
             </span>
-            <span className="text-white">${item.lineTotal.toFixed(2)}</span>
-            {onRemove && (
-              <button
-                type="button"
-                onClick={() => onRemove(item.productId)}
-                className="text-red-400 hover:text-red-300 text-xs ml-2"
-              >
-                Remove
-              </button>
-            )}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-white tabular-nums">${item.lineTotal.toFixed(2)}</span>
+              {onRemove && (
+                <button
+                  type="button"
+                  onClick={() => onRemove(item.productId)}
+                  className="p-1 -m-1 text-gray-400 hover:text-red-400 transition-colors rounded"
+                  aria-label="Remove"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
           </li>
         ))}
       </ul>

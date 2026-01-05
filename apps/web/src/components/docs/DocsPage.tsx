@@ -10,13 +10,14 @@ import {
   Cpu,
   Database,
   Zap,
+  Shield,
 } from "lucide-react";
 
 export function DocsPage() {
   return (
     <AppShell>
       <main className="lg:pl-20 relative bg-grid-pattern min-h-screen">
-        <div className="max-w-3xl mx-auto px-4 md:px-12 py-16">
+        <div className="max-w-3xl mx-auto px-4 md:px-12 pt-24 lg:pt-16 pb-16">
           <div className="mb-16">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-8 h-px bg-primary" />
@@ -191,10 +192,68 @@ export function DocsPage() {
               <div className="border border-neutral-border rounded-lg p-6 bg-background-dark/50">
                 <h3 className="text-lg font-bold mb-3">Resilience</h3>
                 <p className="text-gray-400 text-sm">
-                  Tool parse errors, execution failures, and API errors (rate
-                  limit, auth, timeout) are caught and returned as user-friendly
-                  messages. Request body is validated with Zod before processing.
-                  Rate limiting protects the chat endpoint.
+                  Tool parse errors, execution failures, and API errors (auth,
+                  timeout) are caught and returned as user-friendly messages.
+                  Request body is validated with Zod before processing.
+                </p>
+              </div>
+
+              <div className="border border-neutral-border rounded-lg p-6 bg-background-dark/50">
+                <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                  <Shield className="size-5 text-primary" />
+                  Rate limiting
+                </h3>
+                <p className="text-gray-400 text-sm mb-4">
+                  All sensitive endpoints are protected by Redis-backed
+                  fixed-window rate limiting. Limits are applied per user (when
+                  logged in) or per IP for anonymous requests.
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-left text-gray-500 border-b border-neutral-border">
+                        <th className="py-2 pr-4">Endpoint</th>
+                        <th className="py-2 pr-4">Window</th>
+                        <th className="py-2">Max</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-400">
+                      <tr className="border-b border-neutral-border/50">
+                        <td className="py-2 pr-4 font-mono">AI chat</td>
+                        <td className="py-2 pr-4">60s</td>
+                        <td className="py-2">10</td>
+                      </tr>
+                      <tr className="border-b border-neutral-border/50">
+                        <td className="py-2 pr-4 font-mono">Create order</td>
+                        <td className="py-2 pr-4">24h</td>
+                        <td className="py-2">5</td>
+                      </tr>
+                      <tr className="border-b border-neutral-border/50">
+                        <td className="py-2 pr-4 font-mono">Create product</td>
+                        <td className="py-2 pr-4">24h</td>
+                        <td className="py-2">5</td>
+                      </tr>
+                      <tr className="border-b border-neutral-border/50">
+                        <td className="py-2 pr-4 font-mono">Generate description</td>
+                        <td className="py-2 pr-4">24h</td>
+                        <td className="py-2">5</td>
+                      </tr>
+                      <tr className="border-b border-neutral-border/50">
+                        <td className="py-2 pr-4 font-mono">Login / Signup</td>
+                        <td className="py-2 pr-4">60s</td>
+                        <td className="py-2">10</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 pr-4 font-mono">Profile update</td>
+                        <td className="py-2 pr-4">1h</td>
+                        <td className="py-2">1</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-gray-500 text-xs mt-4">
+                  When a limit is exceeded, requests return 429 with a
+                  user-friendly message and optional retry-after.
                 </p>
               </div>
             </div>
