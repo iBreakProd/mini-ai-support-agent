@@ -1,5 +1,6 @@
+import type { ReactNode } from "react";
 import { Bot } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { EmbeddingCard } from "./EmbeddingCard";
 import { cn } from "@/lib/utils";
@@ -25,15 +26,25 @@ function formatRelativeTime(iso: string): string {
   return date.toLocaleDateString();
 }
 
-const markdownComponents = {
-  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-  ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-  ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
-  li: ({ children }) => <li className="ml-2">{children}</li>,
-  a: ({ href, children }) => (
+const markdownComponents: Components = {
+  p: ({ children }: { children?: ReactNode }) => (
+    <p className="mb-2 last:mb-0">{children}</p>
+  ),
+  strong: ({ children }: { children?: ReactNode }) => (
+    <strong className="font-semibold">{children}</strong>
+  ),
+  ol: ({ children }: { children?: ReactNode }) => (
+    <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>
+  ),
+  ul: ({ children }: { children?: ReactNode }) => (
+    <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>
+  ),
+  li: ({ children }: { children?: ReactNode }) => (
+    <li className="ml-2">{children}</li>
+  ),
+  a: ({ href, children }: { href?: string; children?: ReactNode }) => (
     <a
-      href={href}
+      href={href ?? "#"}
       target="_blank"
       rel="noopener noreferrer"
       className="text-primary hover:underline"
