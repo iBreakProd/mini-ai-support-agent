@@ -7,52 +7,56 @@ const PAGE_SUGGESTIONS: Record<string, string[]> = {
   "/": [
     "What can Hydra do?",
     "What is Arctic?",
-    "Tell me about products",
+    "Show me your products",
   ],
   "/products": [
-    "What products do you have?",
-    "Show me bottles under $50",
-    "Tell me about a product",
+    "List all products",
+    "Show me products under $50",
+    "What categories do you have?",
   ],
   "/orders": [
+    "List my orders",
     "Where is my order?",
-    "How do I place an order?",
-    "View my order history",
+    "What's your shipping policy?",
   ],
   "/support": [
     "I need help with an order",
-    "Tell me about shipping",
-    "Hydration tips",
+    "What's your shipping policy?",
+    "Hydration tips for me",
   ],
   "/profile": [
-    "Update my hydration goal",
     "How much water should I drink?",
+    "Update my hydration profile",
     "Tips for my climate",
   ],
   "/docs": [
-    "How does the API work?",
-    "What endpoints exist?",
-    "How to integrate?",
+    "How does the AI bot work?",
+    "What tools and API do you have?",
+    "How does your tool calling work?",
   ],
   "/login": [
     "What is this app?",
-    "How do I sign up?",
-    "Forgot my password?",
+    "What can Hydra help with?",
   ],
   "/signup": [
     "What is this app?",
-    "How do I sign up?",
-    "Forgot my password?",
+    "What can Hydra help with?",
   ],
 };
 
 const DEFAULT_SUGGESTIONS = [
   "What can Hydra do?",
   "What is Arctic?",
-  "Tell me about products",
+  "Show me your products",
 ];
 
 function getSuggestions(pathname: string): string[] {
+  if (pathname.startsWith("/products")) {
+    return PAGE_SUGGESTIONS["/products"];
+  }
+  if (pathname.startsWith("/orders")) {
+    return PAGE_SUGGESTIONS["/orders"];
+  }
   return PAGE_SUGGESTIONS[pathname] ?? DEFAULT_SUGGESTIONS;
 }
 
@@ -106,13 +110,13 @@ export function ChatWidget() {
       <button
         type="button"
         onClick={() => (isOpen ? closeChat() : openChat())}
-        className="flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-primary shadow-lg hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 overflow-hidden"
+        className="group flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-primary shadow-lg hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 overflow-hidden"
         aria-label={isOpen ? "Close chat" : "Open chat"}
       >
         <img
           src="/icons/arctic.svg"
           alt="Chat"
-          className="w-7 h-7 object-contain"
+          className={`w-7 h-7 object-contain transition-transform duration-200 group-hover:rotate-90`}
         />
       </button>
     </div>

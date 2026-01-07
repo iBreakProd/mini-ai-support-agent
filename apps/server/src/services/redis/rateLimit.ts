@@ -26,7 +26,6 @@ export async function incrementFixedWindow({
     const ttl = await redisClient.ttl(key);
     return { allowed: count <= max, count, ttlSeconds: ttl };
   } catch (error) {
-    console.error("Redis error in rate limiting: ", error);
     return { allowed: true, count: 0, ttlSeconds: windowSeconds };
   }
 }

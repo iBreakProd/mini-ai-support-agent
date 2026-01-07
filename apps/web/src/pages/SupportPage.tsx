@@ -115,8 +115,8 @@ export function SupportPage() {
                 initialQuery={initialQuery}
                 suggestions={[
                   "I need help with an order",
-                  "Tell me about shipping",
-                  "Hydration tips",
+                  "What's your shipping policy?",
+                  "Hydration tips for me",
                 ]}
                 className="flex-1 min-h-0"
                 autoScroll={false}

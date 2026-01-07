@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { useChatSession } from "@/contexts/ChatSessionHook";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
@@ -8,52 +8,62 @@ function getFollowUpSuggestions(lastUserMessage: string): string[] {
   const lower = lastUserMessage.toLowerCase();
   if (/\b(order|track|shipment|delivery)\b/.test(lower)) {
     return [
-      "What's the delivery date?",
-      "Can I change the shipping address?",
-      "What's the return policy for this order?",
+      "List my orders",
+      "What's your shipping policy?",
+      "What's your return policy?",
     ];
   }
   if (/\b(product|bottle|catalog)\b/.test(lower)) {
     return [
-      "Compare with similar products",
-      "What's the warranty?",
-      "Show me more options under $100",
+      "What categories do you have?",
+      "Show me products under $100",
+      "Tell me about a specific product",
     ];
   }
   if (/\b(shipping|deliver)\b/.test(lower)) {
     return [
-      "What's the return policy?",
-      "How do I track my shipment?",
+      "What's your return policy?",
+      "How do I track my order?",
       "Do you ship internationally?",
     ];
   }
   if (/\b(return|refund)\b/.test(lower)) {
     return [
       "How long does a refund take?",
-      "Can I exchange instead?",
       "How do I start a return?",
+      "What's your shipping policy?",
     ];
   }
-  if (/\b(hydration|water|drink)\b/.test(lower)) {
+  if (/\b(hydration|water|drink|profile)\b/.test(lower)) {
     return [
       "How much water should I drink?",
       "Tips for my climate",
-      "Personalized recommendations",
+      "Update my hydration profile",
     ];
   }
-  if (/\b(how|what|documentation|api|architecture)\b/.test(lower)) {
+  if (/\b(how|what|documentation|api|architecture|tool)\b/.test(lower)) {
     return [
-      "What tools do you have?",
-      "How does the API work?",
-      "What endpoints exist?",
+      "How does the AI bot work?",
+      "What tools and API do you have?",
     ];
   }
   return [
-    "Tell me about my orders",
-    "What products do you have?",
+    "List my orders",
+    "Show me your products",
     "What's your return policy?",
   ];
 }
+
+const LOADING_MESSAGES = [
+  "Thinking...",
+  "Looking up your data...",
+  "Analyzing your request...",
+  "Providing the best answer...",
+  "Gathering information...",
+  "Preparing the response...",
+  "Finalizing the answer...",
+  "Sending the answer...",
+];
 
 type ChatWindowProps = {
   initialQuery?: string;
@@ -80,6 +90,18 @@ export function ChatWindow({
   } = useChatSession();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const initialQuerySent = useRef(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+  useEffect(() => {
+    if (!isLoading) return;
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((i) => (i + 1) % LOADING_MESSAGES.length);
+    }, 2000);
+    return () => {
+      clearInterval(interval);
+      setLoadingMessageIndex(0);
+    };
+  }, [isLoading]);
 
   const scrollToBottom = (smooth = true) => {
     const el = scrollContainerRef.current;
@@ -168,18 +190,11 @@ export function ChatWindow({
         )}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="chat-bubble-received px-4 py-2 rounded-lg">
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce" />
-                <span
-                  className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.1s" }}
-                />
-                <span
-                  className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.2s" }}
-                />
-              </div>
+            <div className="chat-bubble-received px-4 py-2 rounded-lg flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-primary/50 rounded-full animate-bounce" />
+              <span className="text-sm text-gray-400 animate-pulse">
+                {LOADING_MESSAGES[loadingMessageIndex]}
+              </span>
             </div>
           </div>
         )}
@@ -190,8 +205,9 @@ export function ChatWindow({
             <button
               key={s}
               type="button"
+              disabled={isLoading}
               onClick={() => sendMessage(s)}
-              className="px-3 py-1.5 rounded-lg text-sm border border-primary/50 text-primary hover:bg-primary/10 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-sm border border-primary/50 text-primary hover:bg-primary/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               {s}
             </button>

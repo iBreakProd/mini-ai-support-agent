@@ -2,6 +2,7 @@ import {
   useState,
   useCallback,
   useRef,
+  useEffect,
   type ReactNode,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -39,8 +40,6 @@ function parseAiMessageText(
   return { response: text };
 }
 
-const CHAT_LOG = "[AI:Client]";
-
 export function ChatSessionProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -49,17 +48,20 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [ambiguity, setAmbiguity] = useState<AmbiguityState | null>(null);
   const conversationIdRef = useRef<string | null>(null);
+  const isLoadingRef = useRef(false);
   conversationIdRef.current = conversationId;
+
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
 
   const loadConversation = useCallback((id: string | null) => {
     if (!id) {
-      console.log(`${CHAT_LOG} loadConversation cleared`);
       setConversationId(null);
       setMessages([]);
       setIsLoadingHistory(false);
       return;
     }
-    console.log(`${CHAT_LOG} loadConversation`, { id });
     setConversationId(id);
     setIsLoadingHistory(true);
     api
@@ -86,13 +88,8 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
           };
         });
         setMessages(msgs);
-        console.log(`${CHAT_LOG} loadConversation loaded`, {
-          id,
-          messageCount: msgs.length,
-        });
       })
-      .catch((err) => {
-        console.warn(`${CHAT_LOG} loadConversation failed`, { id, error: err });
+      .catch(() => {
         setMessages([]);
       })
       .finally(() => setIsLoadingHistory(false));
@@ -107,10 +104,8 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const sendMessage = useCallback(async (text: string) => {
-    console.log(`${CHAT_LOG} sendMessage`, {
-      text: text.slice(0, 80),
-      conversationId: conversationIdRef.current,
-    });
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setIsLoading(true);
     setAmbiguity(null);
     const userMsg: Message = {
@@ -138,14 +133,6 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
       });
 
       const { data, conversationId: newCid } = res.data;
-      console.log(`${CHAT_LOG} sendMessage response`, {
-        type: data.type,
-        conversationId: newCid,
-        responsePreview:
-          data.type === "answer"
-            ? data.response?.slice(0, 80)
-            : data.id_array?.length,
-      });
       setConversationId(newCid);
       if (newCid) {
         queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -185,9 +172,6 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       const errMsg =
         err instanceof Error ? err.message : "Something went wrong";
-      console.warn(`${CHAT_LOG} sendMessage failed`, {
-        error: err instanceof Error ? err.message : String(err),
-      });
       setMessages((m) => [
         ...m,
         {
@@ -198,6 +182,7 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
         },
       ]);
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
     }
   }, [queryClient]);
@@ -206,10 +191,6 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
     (id: string) => {
       if (!ambiguity) return;
       const clarified = `I meant the ${ambiguity.resourceType} ${id}`;
-      console.log(`${CHAT_LOG} handleAmbiguitySelect`, {
-        id,
-        resourceType: ambiguity.resourceType,
-      });
       setAmbiguity(null);
       sendMessage(clarified);
     },

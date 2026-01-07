@@ -10,8 +10,6 @@ export const errorHandler = (
   const message = err.message ?? "Internal server error";
   const retryAfterSeconds = err.retryAfterSeconds;
 
-  console.error(err);
-
   if (retryAfterSeconds !== undefined && retryAfterSeconds !== null) {
     res.status(status).json({ message, success: false, retryAfterSeconds });
     return;

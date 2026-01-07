@@ -94,7 +94,7 @@ export function Footer() {
               <button
                 type="button"
                 onClick={openChat}
-                className="text-gray-400 text-sm hover:text-primary transition-colors"
+                className="text-primary hover:text-primary/75 cursor-pointer transition-colors"
               >
                 Try the AI
               </button>

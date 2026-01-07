@@ -107,7 +107,6 @@ export const generateDescription = async (req: Request, res: Response) => {
         );
       }
     }
-    console.error("OpenAI API error:", error);
     throw new AppError(
       "Failed to generate description. Please try again later.",
       500

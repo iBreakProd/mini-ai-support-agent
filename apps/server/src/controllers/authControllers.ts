@@ -93,35 +93,21 @@ export const getMe = async (req: Request, res: Response) => {
   res.status(200).json({ success: true, data: user });
 };
 
-const AUTH_LOG = "[GoogleAuth]";
-
 export const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
-  console.log(`${AUTH_LOG} Initiating Google OAuth`, { query: req.query });
   passport.authenticate("google", {
     scope: ["profile", "email"],
   })(req, res, next);
 };
 
 export const googleAuthCallback = (req: Request, res: Response, next: NextFunction) => {
-  console.log(`${AUTH_LOG} Callback hit`, {
-    query: req.query,
-    FRONTEND_URL: process.env.FRONTEND_URL,
-  });
   passport.authenticate("google", { session: false }, (err: Error | null, user: any) => {
     if (err) {
-      console.error(`${AUTH_LOG} Callback error`, {
-        message: err.message,
-        name: err.name,
-        stack: err.stack,
-      });
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
     }
     if (!user) {
-      console.warn(`${AUTH_LOG} Callback: no user returned from passport`);
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_user`);
     }
 
-    console.log(`${AUTH_LOG} Callback success`, { userId: user.id, email: user.email });
     const token = signToken({ userId: user.id, email: user.email });
 
     res.cookie(COOKIE_NAME, token, {
