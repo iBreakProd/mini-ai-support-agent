@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, HelpCircle } from "lucide-react";
 import api from "@/lib/api";
 import { AppShell } from "@/components/layout/AppShell";
+import { useChatWidget } from "@/contexts/ChatWidgetContext";
 
 type Order = {
   id: string;
@@ -45,6 +46,7 @@ function formatPaymentMethod(method: string): string {
 
 export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { openChatWithMessage } = useChatWidget();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["order", id],
@@ -118,13 +120,14 @@ export function OrderDetailPage() {
                 Placed on {placedDate} · {order.shippingStatus}
               </p>
             </div>
-            <Link
-              to="/support"
+            <button
+              type="button"
+              onClick={() => openChatWithMessage(`#ORD-${shortId}`)}
               className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-neutral-border hover:border-primary hover:bg-primary/10 text-white font-semibold w-full md:w-auto transition-colors"
             >
               <HelpCircle className="size-5" />
               Get Help
-            </Link>
+            </button>
           </div>
 
           <div className="glass-panel p-6 md:p-8 rounded-lg space-y-8">

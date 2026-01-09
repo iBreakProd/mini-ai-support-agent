@@ -45,6 +45,7 @@ export function SupportPage() {
     setView("chat");
   };
 
+  // Anonymous users: chat only (no conversation list). Log in for history and personalised advice.
   if (!isAuthenticated) {
     return (
       <AppShell>
@@ -52,24 +53,34 @@ export function SupportPage() {
           <div className="fixed top-20 right-20 w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none z-0" />
           <div className="fixed bottom-20 left-40 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] pointer-events-none z-0" />
           <div className="relative z-10 max-w-5xl mx-auto pt-24 lg:pt-12">
-            <div className="mb-8">
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
-                AI <br /> <span className="text-outline">SUPPORT</span>
-              </h1>
-              <p className="text-gray-400 mt-4 max-w-xl mb-6">
-                Chat with our AI about orders, products, or hydration.
-              </p>
-              <div className="rounded-lg border border-white/10 bg-white/5 p-8 text-center glass-panel">
-                <p className="text-gray-400 mb-4">
-                  Log in to see your conversation history.
+            <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-6 gap-4 border-b border-neutral-border pb-6">
+              <div>
+                <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
+                  AI <br /> <span className="text-outline">SUPPORT</span>
+                </h1>
+                <p className="text-gray-400 mt-4 max-w-xl">
+                  Chat about products, orders, shipping, or policies—no account needed.{" "}
+                  <Link
+                    to="/login?redirect=/support"
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    Log in
+                  </Link>{" "}
+                  to save history and get personalised hydration advice.
                 </p>
-                <Link
-                  to="/login?redirect=/support"
-                  className="text-primary hover:underline font-semibold"
-                >
-                  Log in
-                </Link>
               </div>
+            </div>
+            <div className="glass-panel rounded-lg border border-white/10 p-6 h-[calc(100vh-14rem)] min-h-[400px] flex flex-col overflow-hidden">
+              <ChatWindow
+                initialQuery={initialQuery}
+                suggestions={[
+                  "I need help with an order",
+                  "What's your shipping policy?",
+                  "Tell me about your products",
+                ]}
+                className="flex-1 min-h-0"
+                autoScroll={false}
+              />
             </div>
           </div>
         </main>

@@ -14,7 +14,6 @@ export const envChecker = () => {
     COOKIE_NAME,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    GOOGLE_CALLBACK_URL,
   } = process.env;
 
   const missingVars: string[] = [];
@@ -31,7 +30,6 @@ export const envChecker = () => {
   if (!COOKIE_NAME) missingVars.push("COOKIE_NAME");
   if (!GOOGLE_CLIENT_ID) missingVars.push("GOOGLE_CLIENT_ID");
   if (!GOOGLE_CLIENT_SECRET) missingVars.push("GOOGLE_CLIENT_SECRET");
-  if (!GOOGLE_CALLBACK_URL) missingVars.push("GOOGLE_CALLBACK_URL");
   if (missingVars.length > 0) {
     throw new Error(
       `Missing environment variable(s): ${missingVars.join(", ")}`

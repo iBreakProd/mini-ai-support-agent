@@ -87,7 +87,7 @@ export const toolRunner = async (
         return JSON.stringify({
           profile: null,
           reason: "no_user_id",
-          message: "User ID was not provided. The user may need to log in or refresh the page.",
+          message: "User is not logged in. Do not call getUserProfile without userId. Reply that personalised hydration/lifestyle advice requires logging in; offer help with products, orders, shipping, or general hydration tips instead.",
         });
       }
       const profile = await getUserProfileByUserId(userId);
@@ -103,7 +103,9 @@ export const toolRunner = async (
     case "updateUserProfile": {
       userId = toolArgs.userId ?? context?.userId;
       if (!userId) {
-        return JSON.stringify({ error: "User ID is required to update profile" });
+        return JSON.stringify({
+          error: "User is not logged in. Do not call updateUserProfile. Tell the user personalised profile updates require logging in.",
+        });
       }
       const { userId: _, ...data } = toolArgs;
       const updated = await upsertUserProfileByUserId(userId, data as { activityLevel: string, climate: string, dietaryPreference?: string, hydrationGoal?: string });

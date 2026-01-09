@@ -5,12 +5,15 @@ import { usersTable } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
 import { AppError } from "../utils/errorClasses";
 
+const googleCallbackURL =
+  `${process.env.API_URL}/api/v1/auth/google/callback`;
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL!,
+      callbackURL: googleCallbackURL,
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {

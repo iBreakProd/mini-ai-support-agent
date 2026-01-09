@@ -17,7 +17,9 @@ export const generateResponse = async (
   try {
     const history = await getRecentConversationMessages(conversationId);
 
-    const userContext = userId ? `\n\nThe current user id is ${userId}. Use getUserProfile tool with userId parameter when the user asks about hydration, lifestyle, or personalized advice.` : "";
+    const userContext = userId
+      ? `\n\nThe current user id is ${userId}. Use getUserProfile tool with userId parameter when the user asks about hydration, lifestyle, or personalized advice.`
+      : `\n\nThe user is not logged in (no userId in context). Do NOT call getUserProfile or updateUserProfile. For requests about personalised hydration/lifestyle advice, respond that they can log in for that, and offer help with products, orders, shipping, or general tips. Help with everything else (products, orders, policies, general hydration) without requiring login.`;
 
     const messages = [
       { role: "system", content: systemPrompt + userContext },

@@ -4,7 +4,7 @@ This document describes how the Arctic AI support chatbot is built and operates.
 
 ## Overview
 
-The AI support chatbot is the primary way to interact with Arctic. It assists with orders, products, policies, and personalized hydration advice. The app is built to showcase the AI's capabilities in a hydration e-commerce context.
+The AI support chatbot is the primary way to interact with Arctic. Users can chat without logging in: they get help with products, orders, shipping, returns, and company policies. Only personalised hydration/lifestyle advice (based on user profile) requires login. The app is built to showcase the AI's capabilities in a hydration e-commerce context.
 
 **Key principle:** Everything in the app exists to support the chat experience. We built the AI pipeline from scratch with no external agent framework—no LangChain, LlamaIndex, or Vercel AI SDK. Just the raw OpenAI API and custom orchestration.
 
@@ -78,13 +78,15 @@ Example: user picks a product → we send "I meant the product [uuid]" → model
 
 ## Context Injection
 
-When the user is logged in, we append `userId` to the system prompt. The model uses it to call `getUserProfile` and `updateUserProfile` for personalized hydration advice. Without login, those tools are skipped.
+Users can chat without logging in; the model helps with products, orders, policies, and general hydration. When the user is logged in, we append `userId` to the system prompt so the model can call `getUserProfile` and `updateUserProfile` for personalized hydration advice. When not logged in, we inject a reminder not to call those tools and to prompt login only for personalised advice.
 
-Appended to system prompt:
+When logged in (userId in context):
 ```
 The current user id is [uuid].
 Use getUserProfile tool when the user asks about hydration or lifestyle.
 ```
+
+When not logged in: the model is told not to call getUserProfile/updateUserProfile and to suggest logging in only for personalised advice, while helping with everything else (products, orders, shipping, general tips) without login.
 
 ## Parallel Tool Calls
 

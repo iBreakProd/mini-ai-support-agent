@@ -203,7 +203,7 @@ export const tools: ChatCompletionTool[] = [
     function: {
       name: "getUserProfile",
       description:
-        "Get the user's hydration and lifestyle profile (activity level, climate, dietary preference, hydration goal). Use when the user asks about hydration tips, their routine, or personalized advice.",
+        "Get the user's hydration and lifestyle profile (activity level, climate, dietary preference, hydration goal). Only call when userId is in context (user is logged in). If no userId in context, do NOT call—instead tell the user they can log in for personalised advice and help with products/orders/policies. Use when the user asks about hydration tips, their routine, or personalized advice.",
       parameters: {
         type: "object",
         properties: {
@@ -223,7 +223,7 @@ export const tools: ChatCompletionTool[] = [
     function: {
       name: "updateUserProfile",
       description:
-        "Update the user's hydration/lifestyle profile. Use when the user explicitly states a change (e.g., 'I moved to a desert', 'I'm more active now').",
+        "Update the user's hydration/lifestyle profile. Only call when userId is in context (user is logged in). If no userId, do NOT call. Use when the user explicitly states a change (e.g., 'I moved to a desert', 'I'm more active now').",
       parameters: {
         type: "object",
         properties: {
