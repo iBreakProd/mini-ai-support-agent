@@ -34,6 +34,7 @@ export const generateResponse = async (
       model: "gpt-4o-mini",
       messages,
       tools,
+      response_format: { type: "json_object" },
       max_tokens: 1000,
     });
 
@@ -87,6 +88,7 @@ export const generateResponse = async (
         model: "gpt-4o-mini",
         messages,
         tools,
+        response_format: { type: "json_object" },
         max_tokens: 1000,
       });
     }
@@ -101,10 +103,13 @@ export const generateResponse = async (
     try {
       parsedResponseJson = JSON.parse(rawResponse);
     } catch (error) {
-      throw new AppError(
-        "Ai responded with invalid data, please try again",
-        500
-      );
+      console.error("Failed to parse AI response. Raw output:", rawResponse);
+      const fallbackResponse = {
+        type: "answer",
+        response: "I couldn't quite understand that or I encountered a glitch. Could you try rephrasing your question or let me know what product you're looking for?"
+      };
+      await saveUserAndAssistantMessage(conversationId, userQuery, JSON.stringify(fallbackResponse));
+      return fallbackResponse;
     }
 
     if (
@@ -117,10 +122,14 @@ export const generateResponse = async (
 
     const parsedResponse = aiResponseSchema.safeParse(parsedResponseJson);
     if (!parsedResponse.success) {
-      throw new AppError(
-        "Ai responded with invalid data, please try again",
-        500
-      );
+      console.error("AI response failed schema validation. Validation errors:", parsedResponse.error.flatten());
+      console.error("Raw Output:", rawResponse);
+      const fallbackResponse = {
+        type: "answer",
+        response: "I encountered a slight issue understanding that. Could you try asking in a different way or specify the product you're interested in?"
+      };
+      await saveUserAndAssistantMessage(conversationId, userQuery, JSON.stringify(fallbackResponse));
+      return fallbackResponse;
     }
 
     await saveUserAndAssistantMessage(conversationId, userQuery, rawResponse);

@@ -1,135 +1,125 @@
-# Turborepo starter
+# Arctic - Smart Hydration E-Commerce
 
-This Turborepo starter is maintained by the Turborepo core team.
+Arctic is an intelligent e-commerce application for premium hydration gear, powered by a custom-built, from-scratch AI architecture. 
 
-## Using this example
+**Live Demo**: [https://arctic.hrsht.me](https://arctic.hrsht.me)  
+**Built By**: [Harshit](https://hrsht.me)  
+**GitHub Repo**: [iBreakProd/Arctic-Support-Agent](https://github.com/iBreakProd/Arctic-Support-Agent)
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## The AI Architecture: Raw Tool Runner Implementation
+
+Unlike standard applications that rely on heavy frameworks like LangChain or LlamaIndex to blindly manage AI workflows, **Arctic features a completely raw, transparent implementation of an LLM Tool Runner.** 
+
+The goal of this project was to deeply understand how Agentic AI actually works under the hood: how an LLM decides *when* to fetch external context, *how* it parses intent, and *how* to safely inject private database information into the context window for Retrieval-Augmented Generation (RAG).
+
+### How it Works (The LLM Loop)
+
+<br/>
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+    actor User
+    participant Router as API Route<br/>(Next / Express)
+    participant LLM as OpenAI LLM<br/>(gpt-4o-mini)
+    participant Runner as Custom Tool Runner
+    participant DB as PostgreSQL<br/>(Drizzle + Neon)
+
+    User->>Router: Ask about Titanium 1L bottle
+    Router->>LLM: Conversation + System Prompt
+    LLM-->>LLM: Needs more context
+    LLM->>Router: Tool Call: searchProducts
+    Router->>Runner: Trigger tool execution
+    Runner->>DB: SQL ILIKE search
+    DB-->>Runner: Top 5 matches
+    Runner-->>Router: JSON array
+    Router->>LLM: Append DB results
+    LLM-->>LLM: Read JSON + synthesize answer
+    LLM-->>Router: Final text answer + embeddings
+    Router-->>User: Render Chat UI + Cards
 ```
 
-## What's inside?
+<br/>
 
-This Turborepo includes the following packages/apps:
+### Multi-Turn Tool Execution & Limits
 
-### Apps and Packages
+Complex user queries often require gathering data from multiple sources conditionally. To prevent infinite loops and control API costs, the custom Tool Runner strictly restricts the LLM to a **maximum of 5 tool call iterations** per request. 
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Here is an example of a query that triggers multiple sequential tool calls:  
+> *"What's the status of my latest order, and can you recommend a matching accessory?"*
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+<br/>
 
-### Utilities
+```mermaid
+sequenceDiagram
+    autonumber
 
-This Turborepo has some additional tools already setup for you:
+    actor User
+    participant Router as API Route<br/>(Next / Express)
+    participant LLM as OpenAI LLM<br/>(gpt-4o-mini)
+    participant Runner as Custom Tool Runner
+    participant DB as PostgreSQL<br/>(Drizzle + Neon)
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+    User->>Router: "Status of last order + recommend matching accessory"
+    Router->>LLM: Conversation + System Prompt
+    
+    Note over Router,DB: Iteration 1 of 5 (Max Limit)
+    LLM->>Router: Tool Call: getLatestOrder(userId)
+    Router->>Runner: Trigger execution
+    Runner->>DB: Query user's last order
+    DB-->>Runner: Returns 'Titanium Tumbler'
+    Runner-->>Router: JSON result
+    Router->>LLM: Append DB results
+    
+    Note over Router,DB: Iteration 2 of 5 (Max Limit)
+    LLM->>Router: Tool Call: searchProducts("Tumbler accessory")
+    Router->>Runner: Trigger execution
+    Runner->>DB: SQL ILIKE search for related products
+    DB-->>Runner: Top 5 matches
+    Runner-->>Router: JSON result
+    Router->>LLM: Append DB results
+    
+    Note over Router,DB: Iterations complete. LLM has all context.
+    LLM-->>LLM: Read JSON + synthesize answer
+    LLM-->>Router: Final text answer + embeddings
+    Router-->>User: Render Chat UI + Cards
 ```
 
-### Develop
+<br/>
 
-To develop all apps and packages, run the following command:
+### Key Features of the AI Implementation
 
-```
-cd my-turborepo
+1. **Strict Context Boundaries**: The AI operates on a strictly guarded system prompt. It will refuse any questions unrelated to Arctic products, shipping, orders, or hydration advice.
+2. **Dynamic UI Rendering (Embeddings)**: Based exactly on what the Tool Runner pulls from the database, the AI responds with metadata that forces the frontend to render rich, interactive React components (Product Cards, Order Details).
+3. **Session-Aware Personalization**: The AI can recognize if a user is logged in. If they are, it pulls their `UserProfile` (Climate, Activity Level) to give personalized hydration advice. If not, it gracefully handles the fallback and offers general support without halting.
+4. **Resilient Fallbacks**: If the prompt is jailbroken or returns invalid markdown instead of the structured JSON required by the API, the system catches the Zod parsing errors, logs the raw output for debugging, and returns a seamless fallback response to the user.
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+---
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+## Tech Stack
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+This project is a modern monorepo built using **Turborepo** and **TypeScript**.
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+*   **Frontend**: React 19, Vite, Tailwind CSS v4, React Router v7, Zustand, React Query
+*   **Backend**: Node.js, Express, Passport.js (Google OAuth)
+*   **Database**: PostgreSQL (Neon Serverless), Drizzle ORM
+*   **AI**: OpenAI API (`gpt-4o-mini`), custom Tool Runner script (`src/ai/index.ts`)
+*   **Hosting**: DigitalOcean Droplet
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+---
 
-### Remote Caching
+## About the Builder
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+**Harshit** is a software engineer passionate about building intelligent systems and creating seamless user experiences.
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+**Website**: [hrsht.me](https://hrsht.me)  
+**LinkedIn**: [in/ibreakprod](https://www.linkedin.com/in/ibreakprod/)  
+**X (Twitter)**: [@I_Break_Prod](https://x.com/I_Break_Prod)  
+**GitHub**: [@iBreakProd](https://github.com/iBreakProd)
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+---
 
-```
-cd my-turborepo
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)

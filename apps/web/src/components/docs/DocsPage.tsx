@@ -69,6 +69,9 @@ export function DocsPage() {
               hydration advice. <br/> 
               <i>Everything else in the app exists to support this experience.</i>
             </p>
+            <p className="text-gray-400 mt-4 leading-relaxed">
+              You can find the <strong>Source Code</strong> and <strong>Author (By Harshit)</strong> links at the top right of the landing page hero section.
+            </p>
           </div>
 
           <section className="mb-16">

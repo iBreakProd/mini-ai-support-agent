@@ -1,5 +1,5 @@
 import { db } from "@repo/db";
-import { and, eq, gte, ilike, lte } from "drizzle-orm";
+import { and, eq, gte, ilike, lte, or } from "drizzle-orm";
 import { productsTable } from "@repo/db/schema";
 import type { InferSelectModel } from "drizzle-orm";
 
@@ -22,6 +22,7 @@ export const getProductCatalogSummary = async () => {
 };
 
 type SearchProductsParams = {
+  query?: string;
   category?: string;
   subCategory?: string;
   maxPrice?: number;
@@ -30,8 +31,18 @@ type SearchProductsParams = {
 };
 
 export const searchProducts = async (params: SearchProductsParams = {}) => {
-  const { category, subCategory, maxPrice, minPrice, limit = 10 } = params;
+  const { query, category, subCategory, maxPrice, minPrice, limit = 10 } = params;
   const conditions = [];
+
+  if (query?.trim()) {
+    const searchTerm = `%${query.trim()}%`;
+    conditions.push(
+      or(
+        ilike(productsTable.name, searchTerm),
+        ilike(productsTable.description, searchTerm)
+      )
+    );
+  }
 
   if (category?.trim()) {
     conditions.push(ilike(productsTable.category, `%${category.trim()}%`));

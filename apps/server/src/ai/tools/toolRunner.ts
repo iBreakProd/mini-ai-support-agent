@@ -53,6 +53,7 @@ export const toolRunner = async (
     }
     case "searchProducts": {
       result = await searchProducts({
+        query: toolArgs.query,
         category: toolArgs.category,
         subCategory: toolArgs.subCategory,
         maxPrice: toolArgs.maxPrice,

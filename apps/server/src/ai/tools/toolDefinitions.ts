@@ -93,10 +93,14 @@ export const tools: ChatCompletionTool[] = [
     function: {
       name: "searchProducts",
       description:
-        "Search/filter products by criteria. Use category and subCategory values from getProductCatalog (e.g. Titanium, Copper, Ceramic; 750ml, 1000ml). Do NOT use generic terms like 'bottles'—use actual category names. Call getProductCatalog first if unsure.",
+        "Search/filter products by criteria. Use this when the user mentions a specific product name, description, or feature. Call getProductCatalog first if unsure about categories.",
       parameters: {
         type: "object",
         properties: {
+          query: {
+            type: "string",
+            description: "Product name, feature, or natural language search query (e.g., 'ergonomic chair')",
+          },
           category: {
             type: "string",
             description: "Product category filter (partial match)",

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Camera, Globe } from "lucide-react";
+import { Github, Linkedin, Twitter, Globe } from "lucide-react";
 import { useChatWidget } from "@/contexts/ChatWidgetContext";
 
 const SHOP_LINKS = [
@@ -22,9 +22,10 @@ const HELP_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { icon: Mail, href: "#", label: "Email" },
-  { icon: Camera, href: "#", label: "Instagram" },
-  { icon: Globe, href: "#", label: "Website" },
+  { icon: Github, href: "https://github.com/iBreakProd", label: "GitHub" },
+  { icon: Linkedin, href: "https://www.linkedin.com/in/ibreakprod/", label: "LinkedIn" },
+  { icon: Twitter, href: "https://x.com/I_Break_Prod", label: "X (Twitter)" },
+  { icon: Globe, href: "https://hrsht.me", label: "Website" },
 ];
 
 export function Footer() {
@@ -129,7 +130,18 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-neutral-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-        <p>© 2024 ARCTIC. ALL RIGHTS RESERVED.</p>
+        <div>
+          Made by{" "}
+          <a
+            href="https://hrsht.me"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white hover:text-primary transition-colors"
+          >
+            Harshit
+          </a>{" "}
+          — © 2024 ARCTIC.
+        </div>
         <div className="flex gap-6">
           <Link to="#" className="hover:text-white transition-colors">
             PRIVACY POLICY

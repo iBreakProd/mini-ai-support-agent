@@ -10,6 +10,26 @@ export function HeroSection() {
   const { openChat } = useChatWidget();
   return (
     <section className="relative z-10 pt-24 px-4 pb-4 md:px-8 md:pb-8 lg:pt-12 lg:px-12 lg:pb-12 min-h-screen flex flex-col justify-center">
+      <div className="absolute top-6 right-6 md:top-8 md:right-8 z-50 flex items-center gap-6 text-xs tracking-widest text-gray-400 font-medium">
+        <a 
+          href="https://github.com/iBreakProd/Arctic-Support-Agent" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:text-white transition-colors flex items-center gap-2 group"
+        >
+          <img src="https://github.com/favicon.ico" alt="GitHub" className="w-4 h-4 opacity-50 group-hover:opacity-100 grayscale invert transition-opacity" />
+          SOURCE CODE
+        </a>
+        <a 
+          href="https://hrsht.me" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:text-white transition-colors border border-gray-800 hover:border-gray-500 px-3 py-1.5 rounded"
+        >
+          BY HARSHIT
+        </a>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-0 border border-neutral-border bg-background-dark/50 backdrop-blur-sm rounded-lg overflow-hidden shadow-2xl">
         <div className="md:col-span-7 lg:col-span-8 p-8 md:p-12 lg:p-16 border-b md:border-b-0 md:border-r border-neutral-border flex flex-col justify-between relative overflow-hidden group">
           <div className="absolute inset-0 bg-grain opacity-20 pointer-events-none" />
