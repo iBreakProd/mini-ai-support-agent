@@ -91,6 +91,8 @@ jobs:
             cd ~/app
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
+            rm -f .env.production
+
             cat <<EOF > .env.production
             DOCKERHUB_IMAGE_PREFIX=${{ secrets.DOCKERHUB_USERNAME }}/arctic-support-agent
             IMAGE_TAG=${{ github.sha }}
@@ -106,8 +108,9 @@ jobs:
             COOKIE_NAME=${{ secrets.COOKIE_NAME }}
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}
             EOF
 
             docker compose -f docker-compose.production.yml pull
-            docker compose -f docker-compose.production.yml --env-file .env.production up -d
+            docker compose -f docker-compose.production.yml --env-file .env.production up -d --remove-orphans
+
+            docker system prune -af
