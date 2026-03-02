@@ -78,7 +78,7 @@ jobs:
           host: ${{ secrets.SSH_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.arctic.production.yml"
+          source: "docker-compose.production.yml"
           target: "~/app/"
 
       - name: Deploy via SSH
@@ -110,7 +110,7 @@ jobs:
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             EOF
 
-            docker compose -f docker-compose.arctic.production.yml pull
-            docker compose -f docker-compose.arctic.production.yml --env-file .env.production up -d --remove-orphans
+            docker compose -f docker-compose.production.yml pull
+            docker compose -f docker-compose.production.yml --env-file .env.production up -d --remove-orphans
 
             docker system prune -af
