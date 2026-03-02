@@ -1,113 +1,284 @@
 # Arctic - Smart Hydration E-Commerce
 
-Arctic is an intelligent e-commerce application for premium hydration gear, powered by a custom-built, from-scratch AI architecture. 
+**Arctic** is an intelligent e-commerce application for premium hydration gear, powered by a custom-built, from-scratch AI architecture. It features a complete raw implementation of an LLM Tool Runner that seamlessly handles product searches, order status checks, and personalized hydration advice through a chat interface. Built as a Turborepo monorepo, it features an Express backend, a React frontend, and a PostgreSQL database.
 
-**Live Demo**: [https://arctic.hrsht.me](https://arctic.hrsht.me)  
-**Built By**: [Harshit](https://hrsht.me)  
-**GitHub Repo**: [iBreakProd/Arctic-Support-Agent](https://github.com/iBreakProd/Arctic-Support-Agent)
+## 🎥 Demo Video
+
+> *(Add links to demo videos/screenshots here)*
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
+![Turborepo](https://img.shields.io/badge/Turborepo-EF4444?style=flat&logo=turborepo&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/Neon_Postgres-00E5A0?style=flat&logo=postgresql&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-000000?style=flat&logo=express&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)
 
 ---
 
-## The AI Architecture: Raw Tool Runner Implementation
+## Table of Contents
 
-Unlike standard applications that rely on heavy frameworks like LangChain or LlamaIndex to blindly manage AI workflows, **Arctic features a completely raw, transparent implementation of an LLM Tool Runner.** 
+1. [High-Level Architecture](#high-level-architecture)
+2. [Tech Stack](#tech-stack)
+3. [Project Structure](#project-structure)
+4. [AI Architecture (Deep Dive)](#ai-architecture-deep-dive)
+5. [Database & Persistence Strategy](#database--persistence-strategy)
+6. [API Reference](#api-reference)
+7. [Frontend Architecture](#frontend-architecture)
+8. [Getting Started](#getting-started)
+9. [Environment Variables](#environment-variables)
+10. [Available Scripts](#available-scripts)
 
-The goal of this project was to deeply understand how Agentic AI actually works under the hood: how an LLM decides *when* to fetch external context, *how* it parses intent, and *how* to safely inject private database information into the context window for Retrieval-Augmented Generation (RAG).
+---
 
-### How it Works (The LLM Loop)
-
-<br/>
-
-```mermaid
-sequenceDiagram
-    autonumber
-
-    actor User
-    participant Router as API Route<br/>(Next / Express)
-    participant LLM as OpenAI LLM<br/>(gpt-4o-mini)
-    participant Runner as Custom Tool Runner
-    participant DB as PostgreSQL<br/>(Drizzle + Neon)
-
-    User->>Router: Ask about Titanium 1L bottle
-    Router->>LLM: Conversation + System Prompt
-    LLM-->>LLM: Needs more context
-    LLM->>Router: Tool Call: searchProducts
-    Router->>Runner: Trigger tool execution
-    Runner->>DB: SQL ILIKE search
-    DB-->>Runner: Top 5 matches
-    Runner-->>Router: JSON array
-    Router->>LLM: Append DB results
-    LLM-->>LLM: Read JSON + synthesize answer
-    LLM-->>Router: Final text answer + embeddings
-    Router-->>User: Render Chat UI + Cards
-```
-
-<br/>
-
-### Multi-Turn Tool Execution & Limits
-
-Complex user queries often require gathering data from multiple sources conditionally. To prevent infinite loops and control API costs, the custom Tool Runner strictly restricts the LLM to a **maximum of 5 tool call iterations** per request. 
-
-Here is an example of a query that triggers multiple sequential tool calls:  
-> *"What's the status of my latest order, and can you recommend a matching accessory?"*
-
-<br/>
+## High-Level Architecture
 
 ```mermaid
-sequenceDiagram
-    autonumber
+graph TD
+    %% Styling Directives
+    classDef client fill:#f9f9f9,stroke:#333,stroke-width:2px,rx:10,ry:10,color:#333;
+    classDef server fill:#e2f0d9,stroke:#4caf50,stroke-width:2px,rx:10,ry:10,color:#333;
+    classDef ai fill:#ede7f6,stroke:#673ab7,stroke-width:2px,rx:10,ry:10,stroke-dasharray: 5 5,color:#333;
+    classDef db fill:#fff3e0,stroke:#ff9800,stroke-width:2px,rx:10,ry:10,color:#333;
+    classDef external fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px,rx:10,ry:10,color:#333;
 
-    actor User
-    participant Router as API Route<br/>(Next / Express)
-    participant LLM as OpenAI LLM<br/>(gpt-4o-mini)
-    participant Runner as Custom Tool Runner
-    participant DB as PostgreSQL<br/>(Drizzle + Neon)
+    subgraph Client ["Client Layer"]
+        FE["React + Vite<br/>(SPA UI)"]:::client
+    end
 
-    User->>Router: "Status of last order + recommend matching accessory"
-    Router->>LLM: Conversation + System Prompt
+    subgraph Backend ["apps/server (Node.js)"]
+        API["Express API<br/>(Routes & Handlers)"]:::server
+        
+        subgraph AI_Engine ["AI Engine"]
+            AI["AI Orchestrator<br/>(Hydra Persona)"]:::ai
+            TR["Custom Tool Runner<br/>(Dynamic Executor)"]:::ai
+        end
+    end
+
+    subgraph Data ["Data Stores"]
+        PG[("Neon Postgres<br/>(Drizzle ORM)")]:::db
+    end
+
+    subgraph External ["External Services"]
+        OAI["OpenAI API<br/>(gpt-4o-mini)"]:::external
+    end
+
+    %% Wiring
+    FE -- "REST (Chat & E-comm)" --> API
     
-    Note over Router,DB: Iteration 1 of 5 (Max Limit)
-    LLM->>Router: Tool Call: getLatestOrder(userId)
-    Router->>Runner: Trigger execution
-    Runner->>DB: Query user's last order
-    DB-->>Runner: Returns 'Titanium Tumbler'
-    Runner-->>Router: JSON result
-    Router->>LLM: Append DB results
+    API -- "Route Intent" --> AI
+    AI -- "Context & Prompts" --> OAI
     
-    Note over Router,DB: Iteration 2 of 5 (Max Limit)
-    LLM->>Router: Tool Call: searchProducts("Tumbler accessory")
-    Router->>Runner: Trigger execution
-    Runner->>DB: SQL ILIKE search for related products
-    DB-->>Runner: Top 5 matches
-    Runner-->>Router: JSON result
-    Router->>LLM: Append DB results
+    OAI -. "Yields tool_calls" .-> AI
+    AI -- "Dispatch execution" --> TR
     
-    Note over Router,DB: Iterations complete. LLM has all context.
-    LLM-->>LLM: Read JSON + synthesize answer
-    LLM-->>Router: Final text answer + embeddings
-    Router-->>User: Render Chat UI + Cards
+    TR -- "SQL via Drizzle" --> PG
+    PG -- "Result Rows" --> TR
+    TR -- "Resolved JSON Data" --> AI
+    
+    AI -- "Append Results to Context" --> OAI
+    OAI -- "Final Answer + Embeddings" --> AI
+    
+    AI -- "Zod Validation" --> API
+    API -- "Renderable Payload" --> FE
 ```
 
-<br/>
+### End-to-End Data Flows
 
-### Key Features of the AI Implementation
+**AI Chat Loop:**
+```
+User asks: "What's the status of my latest order?"
+  → POST /api/v1/ai/chat
+  → Backend AI Module reads conversation history
+  → Appends user message and calls OpenAI (MAX 5 iterations allowed)
+  → LLM determines it needs order history and yields a tool_call: getOrderById
+  → Tool Runner catches it, queries PostgreSQL for the specific user's latest order
+  → Runner transforms DB rows directly into JSON context for the LLM
+  → LLM synthesizes natural response ("Your order for Titanium Tumbler is out for delivery")
+  → AI Orchestrator strictly validates output with Zod, ensures embeddings fit constraints
+  → Frontend renders text and rich Interactive UI Cards (React) from the payload
+```
 
-1. **Strict Context Boundaries**: The AI operates on a strictly guarded system prompt. It will refuse any questions unrelated to Arctic products, shipping, orders, or hydration advice.
-2. **Dynamic UI Rendering (Embeddings)**: Based exactly on what the Tool Runner pulls from the database, the AI responds with metadata that forces the frontend to render rich, interactive React components (Product Cards, Order Details).
-3. **Session-Aware Personalization**: The AI can recognize if a user is logged in. If they are, it pulls their `UserProfile` (Climate, Activity Level) to give personalized hydration advice. If not, it gracefully handles the fallback and offers general support without halting.
-4. **Resilient Fallbacks**: If the prompt is jailbroken or returns invalid markdown instead of the structured JSON required by the API, the system catches the Zod parsing errors, logs the raw output for debugging, and returns a seamless fallback response to the user.
+**Personalized Hydration Recommendations:**
+```
+User (Logged In) asks: "What should I drink based on my lifestyle?"
+  → Backend parses valid User Session via JWT/Cookies
+  → Injects userId securely into Tool Runner (prevents arbitrary injection from LLM)
+  → LLM calls getUserProfile tool
+  → Runner pulls UserProfile (Activity Level, Climate, Goals) from DB
+  → LLM formulates personalized advice and calls searchProducts tool for matches
+  → Runner queries products DB based on criteria
+  → Final LLM response returns text with rich product embeddings
+```
 
 ---
 
 ## Tech Stack
 
-This project is a modern monorepo built using **Turborepo** and **TypeScript**.
+| Technology | Role |
+|---|---|
+| **React 19 + Vite** | Frontend SPA, UI, routing |
+| **Node.js + Express** | Backend API and AI orchestration |
+| **Turborepo + pnpm** | Monorepo build and dependency management |
+| **Neon (Serverless Postgres)** | Primary database (Users, Orders, Chat History) |
+| **Drizzle ORM** | Type-safe SQL query builder |
+| **OpenAI (`gpt-4o-mini`)** | Core language model for intent parsing and synthesis |
+| **Zod** | Run-time schema validation and type safety |
+| **Passport.js** | Authentication & Google OAuth integration |
 
-*   **Frontend**: React 19, Vite, Tailwind CSS v4, React Router v7, Zustand, React Query
-*   **Backend**: Node.js, Express, Passport.js (Google OAuth)
-*   **Database**: PostgreSQL (Neon Serverless), Drizzle ORM
-*   **AI**: OpenAI API (`gpt-4o-mini`), custom Tool Runner script (`src/ai/index.ts`)
-*   **Hosting**: DigitalOcean Droplet
+---
+
+## Project Structure
+
+```
+arctic/
+├── apps/
+│   ├── server/                 # Express REST API, AI Orchestration, Tool Runner
+│   └── web/                    # React Vite SPA UI
+│
+├── packages/
+│   ├── db/                     # Drizzle schema, migrations, typed DB client
+│   ├── zod/                    # Shared validation schemas (e.g. aiResponseSchema)
+│   ├── eslint-config/          # Shared linting rules
+│   └── typescript-config/      # Shared TS configurations
+```
+
+---
+
+## AI Architecture (Deep Dive)
+
+Unlike standard applications that rely on heavy frameworks like LangChain or LlamaIndex to blindly manage AI workflows, **Arctic features a completely raw, transparent implementation of an LLM Tool Runner.** 
+
+The goal of this project was to deeply understand how Agentic AI actually works under the hood: how an LLM decides *when* to fetch external context, *how* it parses intent, and *how* to safely inject private database information into the context window for Retrieval-Augmented Generation (RAG).
+
+### 1. The Execution Loop
+The `apps/server/src/ai/index.ts` orchestrates the loop:
+- It maintains context (System Prompt + History + Current Query).
+- Operates a `while` loop restricted to a **MAX of 5 iterations** to prevent infinite execution loops and optimize costs.
+- Passes `tool_calls` down to the custom `Tool Runner` and loops back up with the resolved data until a final text answer is synthesized.
+
+### 2. Context Boundaries and Roles
+The AI assumes the "Hydra" persona and is instructed to stay fiercely in scope:
+- It refuses any topics unrelated to Arctic products, shipping, orders, or hydration.
+- The system heavily relies on structured outputs via OpenAI's `response_format: { type: "json_object" }` to guarantee shape.
+
+### 3. Graceful Fallbacks & Validation
+Before leaving the backend, the raw LLM output is passed through Zod schema validation (`aiResponseSchema`). If the LLM hallucinates markdown or drops required schema attributes, the backend suppresses the failure and serves a robust standard fallback directly to the user to maintain UI integrity.
+
+### 4. Dynamic UI Rendering (Embeddings)
+The system prompt explicitly commands the LLM to output a dedicated array of `embeddings` alongside conversational text. The orchestrator clamps this list to a maximum of 6 elements. The React frontend consumes these IDs and mounts dedicated interactive functional UI components (Product Cards, Order Widgets) dynamically.
+
+---
+
+## Database & Persistence Strategy
+
+### PostgreSQL (via Drizzle ORM)
+Connected to a Neon database, acting as the singular source of truth:
+- **`products` & `orders` tables**: E-commerce entities for catalog rendering and transactional queries.
+- **`users` & `user_profiles` tables**: Authentication and hydration-specific profile data (Climate, Activity) for AI customization.
+- **`conversation` & `messages` tables**: Chat histories are stored relationally here. This empowers the backend to quickly fetch the conversational log and construct LLM windows without needing secondary vector databases or isolated prompt logs.
+
+---
+
+## API Reference
+
+### Real-time AI
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/v1/ai/chat` | Main interface for interacting with the Hydra support bot |
+
+### Auth & User
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/v1/auth/google` | Trigger Google OAuth flow |
+| `GET` | `/api/v1/user/profile` | Retrieve the hydration `user_profile` |
+| `PUT` | `/api/v1/user/profile` | Upsert the user profile properties |
+
+### E-Commerce
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/v1/products` | Fetch full item catalog |
+| `GET` | `/api/v1/orders` | Fetch user order history |
+
+---
+
+## Frontend Architecture
+
+**Framework:** React 19 / Vite SPA
+
+| Concept | Purpose |
+|---|---|
+| **Routing** | React Router v7 |
+| **Styling** | Tailwind CSS v4 |
+| **State Management** | Zustand (global UI states) and React Query (fetching and caching REST APIs, including AI conversation handling). |
+| **Interactive Chat UI** | Dynamically mounts rich card components into the message feed directly using JSON embedding arrays output by the backend. |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js ≥ 20
+- pnpm ≥ 9
+- Neon Postgres database (or local Postgres server)
+- OpenAI API Key
+
+### Installation
+
+```bash
+git clone https://github.com/iBreakProd/Arctic-Support-Agent.git
+cd Arctic-Support-Agent
+pnpm install
+```
+
+### Database Setup
+
+```bash
+pnpm --filter @repo/db db:push # Make sure to generate and apply Drizzle changes
+```
+
+### Development
+
+```bash
+# Run all apps concurrently via Turborepo
+pnpm dev
+```
+
+### Production Build
+
+```bash
+pnpm build
+```
+
+---
+
+## Environment Variables
+
+A combination of global and app-specific variables. Provide `.env` files in root or respective app directories.
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | Neon/Postgres connection string |
+| `FRONTEND_URL` | Allowed origin for CORS (e.g., http://localhost:5173) |
+| `HTTP_PORT` | Backend Express Port (Default 3000) |
+| `OPENAI_API_KEY` | GPT-4o-mini authentication key |
+| `JWT_SECRET` | Secret for signing JWTs/Cookies |
+| `GOOGLE_CLIENT_ID` | OAuth Client ID |
+| `GOOGLE_CLIENT_SECRET` | OAuth Client Secret |
+
+---
+
+## Available Scripts
+
+| Script | Command | Description |
+|---|---|---|
+| `dev` | `pnpm dev` | Run all apps in watch mode |
+| `build` | `pnpm build` | Compile all packages and apps |
+| `start` | `pnpm start` | Run compiled backend app |
+| `lint` | `pnpm lint` | Run ESLint across packages |
+| `db:push` | `pnpm --filter @repo/db db:push` | Push schema directly to DB |
 
 ---
 
@@ -119,7 +290,3 @@ This project is a modern monorepo built using **Turborepo** and **TypeScript**.
 **LinkedIn**: [in/ibreakprod](https://www.linkedin.com/in/ibreakprod/)  
 **X (Twitter)**: [@I_Break_Prod](https://x.com/I_Break_Prod)  
 **GitHub**: [@iBreakProd](https://github.com/iBreakProd)
-
----
-
-
