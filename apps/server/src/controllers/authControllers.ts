@@ -107,18 +107,14 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
 };
 
 export const googleAuthCallback = (req: Request, res: Response, next: NextFunction) => {
-  console.log("[GOOGLE AUTH CALLBACK] Hit from Google with query:", req.query);
   passport.authenticate("google", { session: false }, (err: Error | null, user: any, info: any) => {
     if (err) {
-      console.error("[GOOGLE AUTH CALLBACK] Authentication error from passport:", err);
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
     }
     if (!user) {
-      console.warn("[GOOGLE AUTH CALLBACK] Authentication succeeded but no user returned. Info:", info);
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_user`);
     }
 
-    console.log("[GOOGLE AUTH CALLBACK] Authentication successful! Generating token for user:", user.id);
     const token = signToken({ userId: user.id, email: user.email });
 
     res.cookie(COOKIE_NAME, token, {
