@@ -2,12 +2,16 @@
 
 **Arctic** is an e-commerce application for premium hydration gear. It features a custom-built AI architecture, serving as a practical implementation of an LLM Tool Runner that handles product searches, order status checks, and personalized hydration advice through a chat interface. Built as a Turborepo monorepo, it features an Express backend, a React frontend, and a PostgreSQL database.
 
+Built by [Harshit](https://www.hrsht.me).
+
+Project live at [Arctic](https://arctic.hrsht.me)
+
 ## 🎥 Demo Video
 
 <a href="https://youtu.be/mRuttj1RPNU" target="_blank">
-  <img src="https://img.youtube.com/vi/mRuttj1RPNU/maxresdefault.jpg" width="560" alt="Arctic- The Hydrabot Showcase">
+  <img width="1440" height="900" alt="Arctic- The Hydrabot Showcase" src="https://github.com/user-attachments/assets/75dacb3d-1eef-4b42-a3f3-db86fb746fb4" />
 </a>  
-<p><b>Arctic- The Hydrabot Showcase</b></p>
+<p><b>Arctic- The Hydrabot Showcase</b> <a href="https://youtu.be/mRuttj1RPNU" target="_blank">Video ^^^</a></p>
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
