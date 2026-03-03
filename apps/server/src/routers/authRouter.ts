@@ -10,7 +10,7 @@ router.get("/me", requireAuth, asyncHandler(getMe));
 router.post("/signup", rateLimitSignInMw, asyncHandler(signup));
 router.post("/login", rateLimitSignInMw, asyncHandler(login));
 router.post("/logout", asyncHandler(logout));
-router.get("/google", asyncHandler(googleAuth));
 router.get("/google/callback", asyncHandler(googleAuthCallback));
+router.get("/google", asyncHandler(googleAuth));
 
 export default router;
